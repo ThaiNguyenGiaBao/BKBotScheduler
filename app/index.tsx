@@ -10,7 +10,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import images from "@/constants/images";
 import icons from "@/constants/icons";
-
+import { router, Router } from "expo-router";
 const { width } = Dimensions.get("window");
 
 const PAGES = [
@@ -47,7 +47,7 @@ const PAGES = [
   },
 ];
 
-const Onboarding = ({ navigation }) => {
+const Onboarding = ({}) => {
   const scrollRef = useRef<ScrollView>(null);
   const [currentPage, setCurrentPage] = useState(0);
 
@@ -56,6 +56,7 @@ const Onboarding = ({ navigation }) => {
     setCurrentPage(page);
   };
 
+  // inside your Onboarding component:
   const handleNext = () => {
     if (currentPage < PAGES.length - 1) {
       scrollRef.current?.scrollTo({
@@ -63,9 +64,8 @@ const Onboarding = ({ navigation }) => {
         animated: true,
       });
     } else {
-      // last page → trigger sign-in or navigate
-      // e.g. navigation.replace("SignIn")
-      console.log("Do Google sign‑in now");
+      // on last page → go to your Home screen
+      router.replace("/(root)/(tabs)/home");
     }
   };
 
