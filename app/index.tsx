@@ -19,7 +19,7 @@ const PAGES = [
     key: "1",
     image: images.onboarding1,
     subtitle: "WELCOME TO RBOTSCHEDULING",
-    title: "Optimizing Robot Scheduling For A Smarter Future",
+    title: "Optimizing Robot Scheduling For A Smarter Future.",
     description: "",
   },
   {
