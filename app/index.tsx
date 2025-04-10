@@ -58,6 +58,7 @@ const Onboarding = ({}) => {
       const hasSeenOnboarding = await AsyncStorage.getItem("hasSeenOnboarding");
       if (hasSeenOnboarding) {
         setIsOnboardingVisible(false);
+        router.replace("/(root)/(tabs)/home"); // Navigate to home
       }
     };
     checkOnboardingStatus();
