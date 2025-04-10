@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   View,
   Text,
@@ -11,6 +11,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import images from "@/constants/images";
 import icons from "@/constants/icons";
 import { router, Router } from "expo-router";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 const { width } = Dimensions.get("window");
 
 const PAGES = [
@@ -50,6 +51,17 @@ const PAGES = [
 const Onboarding = ({}) => {
   const scrollRef = useRef<ScrollView>(null);
   const [currentPage, setCurrentPage] = useState(0);
+  const [isOnboardingVisible, setIsOnboardingVisible] = useState(true);
+
+  useEffect(() => {
+    const checkOnboardingStatus = async () => {
+      const hasSeenOnboarding = await AsyncStorage.getItem("hasSeenOnboarding");
+      if (hasSeenOnboarding) {
+        setIsOnboardingVisible(false);
+      }
+    };
+    checkOnboardingStatus();
+  }, []);
 
   const handleScroll = (e) => {
     const page = Math.round(e.nativeEvent.contentOffset.x / width);
@@ -57,14 +69,14 @@ const Onboarding = ({}) => {
   };
 
   // inside your Onboarding component:
-  const handleNext = () => {
+  const handleNext = async () => {
     if (currentPage < PAGES.length - 1) {
       scrollRef.current?.scrollTo({
         x: (currentPage + 1) * width,
         animated: true,
       });
     } else {
-      // on last page → go to your Home screen
+      await AsyncStorage.setItem("hasSeenOnboarding", "true"); // Save flag
       router.replace("/(root)/(tabs)/home");
     }
   };
@@ -77,6 +89,10 @@ const Onboarding = ({}) => {
       });
     }
   };
+
+  if (!isOnboardingVisible) {
+    return null; // Don't render onboarding if already seen
+  }
 
   return (
     <SafeAreaView className="flex-1 bg-white">
