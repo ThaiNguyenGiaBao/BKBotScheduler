@@ -51,12 +51,12 @@ const TabLayout = () => {
         }}
       />
       <Tabs.Screen
-        name="explore"
+        name="group"
         options={{
-          title: "Explore",
+          title: "Group",
           headerShown: false,
           tabBarIcon: ({ focused }) => (
-            <TabIcon focused={focused} icon={icons.search} title="Explore" />
+            <TabIcon focused={focused} icon={icons.search} title="Group" />
           ),
         }}
       />
@@ -67,6 +67,16 @@ const TabLayout = () => {
           headerShown: false,
           tabBarIcon: ({ focused }) => (
             <TabIcon focused={focused} icon={icons.person} title={"Profile"} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="settings"
+        options={{
+          title: "Settings",
+          headerShown: false,
+          tabBarIcon: ({ focused }) => (
+            <TabIcon focused={focused} icon={icons.person} title={"Settings"} />
           ),
         }}
       />
