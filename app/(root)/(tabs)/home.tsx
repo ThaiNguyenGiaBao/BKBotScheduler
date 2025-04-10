@@ -1,7 +1,19 @@
 import icons from '@/constants/icons'
 import images from '@/constants/images'
-import { Text, View, Image, ScrollView } from 'react-native'
+import { Text, View, Image, ScrollView, TouchableOpacity } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
+
+const TaskItem = ({ title, time }: { title: string; time: string }) => (
+  <View className="bg-white shadow-sm rounded-xl p-4 mb-3 flex-row justify-between items-center">
+    <View>
+      <Text className="text-blue-600 font-semibold text-base mb-1">
+        {title}
+      </Text>
+      <Text className="text-gray-500 text-sm">{time}</Text>
+    </View>
+    <Image source={icons.person} style={{ width: 24, height: 24 }} />
+  </View>
+)
 
 export default function Home() {
   return (
@@ -62,6 +74,15 @@ export default function Home() {
             </Text>
           </View>
         </View>
+
+        {/* Tasks */}
+        <Text className="font-bold text-xl mb-4 text-center">Nhiệm vụ</Text>
+
+        <TaskItem title="Thiết kế giao diện figma" time="Hôm nay, 9pm" />
+        <TaskItem title="Học ngoại ngữ" time="Hôm nay, 10pm" />
+        <TaskItem title="Hiện thực website BTL" time="2 ngày nữa, 11:59pm" />
+        <TaskItem title="Đi khám bệnh" time="3 ngày nữa, 8am" />
+        <TaskItem title="Kiến tập tại VNG" time="5 ngày nữa, 6:45am" />
       </ScrollView>
     </SafeAreaView>
   )
