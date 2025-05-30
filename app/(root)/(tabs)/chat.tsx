@@ -6,7 +6,7 @@ const Settings = () => {
     <SafeAreaView className="bg-white h-full">
       <ScrollView className="p-3" showsHorizontalScrollIndicator={false}>
         <View className="flex flex-row justify-between items-center">
-          <Text> Trang cài đặt </Text>
+          <Text> Chatbot</Text>
         </View>
       </ScrollView>
     </SafeAreaView>
