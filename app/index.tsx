@@ -12,7 +12,6 @@ import images from '@/constants/images'
 import icons from '@/constants/icons'
 import { router, Router } from 'expo-router'
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import ChatBotIcon from '@/component/chatbotIcon'
 
 const { width } = Dimensions.get('window')
 

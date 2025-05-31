@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "restate",
-    "slug": "restate",
+    "name": "BKBotScheduler",
+    "slug": "BKBotScheduler",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
