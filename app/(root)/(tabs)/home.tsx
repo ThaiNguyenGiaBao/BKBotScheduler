@@ -1,7 +1,14 @@
+import React from 'react'
+import {
+  Text,
+  View,
+  Image,
+  ScrollView,
+  SafeAreaView,
+  TouchableOpacity,
+} from 'react-native'
 import icons from '@/constants/icons'
 import images from '@/constants/images'
-import { Text, View, Image, ScrollView, TouchableOpacity } from 'react-native'
-import { SafeAreaView } from 'react-native-safe-area-context'
 
 const TaskItem = ({ title, time }: { title: string; time: string }) => (
   <View className="bg-white shadow-sm rounded-xl p-4 mb-3 flex-row justify-between items-center">
