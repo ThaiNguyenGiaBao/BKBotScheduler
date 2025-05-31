@@ -1,68 +1,83 @@
-import { View, Text, ScrollView, Image, TouchableOpacity } from "react-native";
-import React from "react";
-import { SafeAreaView } from "react-native-safe-area-context";
-import icons from "@/constants/icons";
-import images from "@/constants/images";
-
-const ProfileItem = ({ icon, title }: { icon: any; title: string }) => {
-  return (
-    <View className="flex flex-col">
-      <TouchableOpacity className="flex flex-row justify-between items-center">
-        <Text className="font-rubik-semibold text-lg flex flex-row items-center gap-3">
-          <Image source={icon} style={{ width: 20, height: 20 }}></Image>
-          {title}
-        </Text>
-        <Image
-          source={icons.rightArrow}
-          style={{ width: 20, height: 20 }}
-        ></Image>
-      </TouchableOpacity>
-    </View>
-  );
-};
+import React from 'react'
+import { View, Text, Image, TouchableOpacity, ScrollView } from 'react-native'
+import { SafeAreaView } from 'react-native-safe-area-context'
+import images from '@/constants/images'
+import { Ionicons } from '@expo/vector-icons'
+import TopBar from '@/component/topBar'
 
 const Profile = () => {
   return (
-    <SafeAreaView>
-      <ScrollView className="h-screen p-3 bg-white">
-        <View>
-          <View className="flex flex-row justify-between items-center">
-            <Text className="font-rubik-semibold text-xl">Profile</Text>
-            <Image
-              source={icons.bell}
-              style={{ width: 30, height: 30 }}
-              resizeMode="contain"
-            ></Image>
-          </View>
-        </View>
-        <View className="flex flex-col items-center mt-7">
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
+      <TopBar title="Profile" />
+
+      <ScrollView contentContainerStyle={{ padding: 20 }}>
+        {/* Avatar */}
+        <View style={{ alignItems: 'center', marginTop: 24 }}>
           <Image
             source={images.avatar}
-            style={{ width: 150, height: 150 }}
-          ></Image>
-          <Text className="font-rubik-semibold text-xl mt-2">John Doe</Text>
+            style={{ width: 120, height: 120, borderRadius: 60 }}
+          />
+          <TouchableOpacity
+            style={{
+              position: 'absolute',
+              bottom: 0,
+              right: (120 - 30) / -2,
+              backgroundColor: '#2979FF',
+              borderRadius: 999,
+              padding: 6,
+            }}
+          >
+            <Ionicons name="create-outline" size={16} color="#fff" />
+          </TouchableOpacity>
         </View>
 
-        <View className="flex flex-col mt-7 gap-5">
-          <ProfileItem icon={icons.calendar} title="My Bookings" />
-          <ProfileItem icon={icons.carPark} title="Payments" />
-          <View
-            style={{ height: 1, backgroundColor: "#E0E0E0", marginVertical: 8 }}
-          />
+        {/* Info */}
+        <View style={{ alignItems: 'center', marginTop: 16 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <Text style={{ fontWeight: 'bold', fontSize: 18 }}>
+              PingPongBKD
+            </Text>
+            <Ionicons
+              name="pencil"
+              size={16}
+              color="#000"
+              style={{ marginLeft: 6 }}
+            />
+          </View>
+          <Text style={{ color: '#666', marginTop: 4 }}>
+            pingpongbkd@hcmut.edu.vn
+          </Text>
+        </View>
 
-          <ProfileItem icon={icons.person} title="Profile" />
-          <ProfileItem icon={icons.bell} title="Notifications" />
-          <ProfileItem icon={icons.shield} title="Security" />
-          <ProfileItem icon={icons.language} title="Language" />
-          <ProfileItem icon={icons.wallet} title="Currency" />
-          <View
-            style={{ height: 1, backgroundColor: "#E0E0E0", marginVertical: 8 }}
-          />
-          <ProfileItem icon={icons.logout} title="Logout" />
+        {/* Actions */}
+        <View style={{ marginTop: 32, gap: 16 }}>
+          <TouchableOpacity
+            style={{
+              backgroundColor: '#1A1A2E',
+              paddingVertical: 14,
+              borderRadius: 30,
+              alignItems: 'center',
+            }}
+          >
+            <Text style={{ color: '#fff', fontWeight: 'bold' }}>
+              Toggle dark mode
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={{
+              backgroundColor: '#FFE0E0',
+              paddingVertical: 14,
+              borderRadius: 30,
+              alignItems: 'center',
+            }}
+          >
+            <Text style={{ color: 'red', fontWeight: 'bold' }}>Log out</Text>
+          </TouchableOpacity>
         </View>
       </ScrollView>
     </SafeAreaView>
-  );
-};
+  )
+}
 
-export default Profile;
+export default Profile

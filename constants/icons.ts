@@ -32,6 +32,7 @@ import wifi from "@/assets/icons/wifi.png";
 import location from "@/assets/icons/location.png";
 import edit from "@/assets/icons/edit.png";
 import settings from "@/assets/icons/settings.png";
+import chatbot from "@/assets/icons/Logo.png";
 
 export default {
   google,
@@ -68,4 +69,5 @@ export default {
   location,
   edit,
   settings,
+  chatbot,
 };

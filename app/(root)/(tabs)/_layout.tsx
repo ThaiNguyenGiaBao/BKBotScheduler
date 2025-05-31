@@ -18,7 +18,7 @@ const TabIcon = ({
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        paddingBottom: 4,
+        gap: 2,
       }}
     >
       <Image
@@ -28,7 +28,6 @@ const TabIcon = ({
           width: 24,
           height: 24,
           tintColor: focused ? '#0061ff' : '#666876',
-          marginBottom: 2,
         }}
       />
       <Text
@@ -55,14 +54,16 @@ const TabLayout = () => {
         tabBarStyle: {
           minHeight: 70,
           backgroundColor: 'white',
-          paddingBottom: 8,
         },
         tabBarItemStyle: {
           flex: 1,
-          paddingTop: 12,
           height: 70,
           alignItems: 'center',
+          justifyContent: 'center',
         },
+        tabBarIconStyle: {
+          flex: 1
+        }
       }}
     >
       <Tabs.Screen
