@@ -65,7 +65,7 @@ const Onboarding = ({}) => {
     checkOnboardingStatus()
   }, [])
 
-  const handleScroll = (e) => {
+  const handleScroll = (e:any) => {
     const page = Math.round(e.nativeEvent.contentOffset.x / width)
     setCurrentPage(page)
   }

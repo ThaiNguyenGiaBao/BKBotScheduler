@@ -77,7 +77,7 @@ const TabLayout = () => {
         }}
       />
       <Tabs.Screen
-        name="group"
+        name="group/index"
         options={{
           title: 'Group',
           headerShown: false,

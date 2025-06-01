@@ -131,7 +131,6 @@ const ChatScreen = () => {
       <View
         style={{
           flexDirection: 'row',
-          padding: 12,
           backgroundColor: '#fff',
           borderTopWidth: 1,
           borderColor: '#eee',

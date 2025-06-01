@@ -24,8 +24,6 @@ const TopBar: React.FC<TopBarProps> = ({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        paddingHorizontal: 16,
-        paddingTop: 12,
         paddingBottom: 8,
         backgroundColor: 'white',
       }}
@@ -45,7 +43,7 @@ const TopBar: React.FC<TopBarProps> = ({
         <View style={{ width: 28 }} />
       )}
 
-      <Text style={{ fontSize: 20, fontWeight: '700', color: '#000' }}>
+      <Text style={{ fontSize: 24, fontWeight: '700', color: '#000' }}>
         {title}
       </Text>
 
