@@ -1,6 +1,6 @@
 // File: app/group/[groupId].tsx
 
-import React from "react";
+import React, {useState, useEffect} from "react";
 import {
   View,
   Text,
@@ -9,10 +9,12 @@ import {
   Image,
   ScrollView,
 } from "react-native";
-import {  useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { Ionicons, Feather } from "@expo/vector-icons";
 import images from "@/constants/images";
 import TopBar from "@/component/topBar";
+import { Group } from "@/types";
+import api from "@/api";
 
 interface Task {
   id: string;
@@ -20,21 +22,41 @@ interface Task {
   datetime: string;
 }
 
+
+
 export default function GroupDetail() {
-  // 1) Read the dynamic groupId from the URL (e.g. /group/42 → { groupId: "42" })
-  //const { groupId } = useSearchParams<{ groupId: string }>();
-  const groupId = "cnpm"; // hardcoded for demo purposes
+  const { groupId } = useLocalSearchParams<{ groupId: string }>();
   const router = useRouter();
+
+  const [group, setGroup] = useState<Group>({
+      id: "1",
+      name: "CNPM",
+      numMember: 3,
+      description: "Group for CNPM course discussions",
+    });
 
   // 2) In a real app, you would fetch group data based on groupId.
   //    Here we mock up:
-  const groupTitle = `CNPM - ${groupId?.toUpperCase()}`;
   const avatarSrc = images.avatar; // placeholder avatar
   const tasks: Task[] = [
     { id: "t1", title: "Tổng kết dự án", datetime: "19/2, 9pm - 10pm" },
     { id: "t2", title: "Họp đầu tuần", datetime: "03/3, 9pm - 10pm" },
   ];
-  const remainingTasks = tasks.length;
+
+  useEffect(() => {
+    const fetchGroups = async () => {
+      try {
+        const response = await api.get("/groups/" + groupId); // Adjust endpoint as needed
+        setGroup(response.data);
+        console.log("Fetched group:", response.data);
+      } catch (error) {
+        console.log("Failed to fetch group:", error);
+      }
+    };
+
+    fetchGroups();
+  }
+  , []);
 
   return (
     <SafeAreaView className="flex-1 bg-white p-3">
@@ -51,17 +73,20 @@ export default function GroupDetail() {
         {/* Avatar */}
         <Image
           source={avatarSrc}
-          className="w-16 h-16 rounded-full mr-4"
+          className="w-12 h-12 rounded-full mr-4"
           resizeMode="cover"
         />
 
         {/* Title + Subtitle */}
-        <View className="flex-1">
-          <Text className="text-lg font-semibold text-gray-900">
-            {groupTitle}
+        <View className="flex-1 gap-1">
+          <Text className="text-xl font-semibold text-gray-900">
+            {group.name || "Group Name"}
           </Text>
-          <Text className="text-sm text-gray-600">
-            {remainingTasks} tasks remaining
+          <Text className=" text-gray-600">
+            {group.description || "Group description goes here."}
+          </Text>
+          <Text className=" text-gray-600">
+            3 tasks remaining
           </Text>
         </View>
 
@@ -82,18 +107,19 @@ export default function GroupDetail() {
             key={task.id}
             className="flex-row items-center justify-between border border-gray-300 rounded-lg px-4 py-3 mb-3"
           >
-            {/* Left: Task title + Trash icon */}
-            <View className="flex-row items-center flex-1">
-              <Text className="text-base text-gray-800 flex-1">
+             <Text className="text-base text-gray-800 flex-1">
                 {task.title}
               </Text>
-              <TouchableOpacity className="ml-2 p-1">
+            {/* Left: Task title + Trash icon */}
+            <View className="flex-row items-center flex-1">
+              <Text className="text-sm text-gray-500 ">{task.datetime}</Text>
+
+              <TouchableOpacity className="ml-5 p-1">
                 <Feather name="trash-2" size={20} color="#E02424" />
               </TouchableOpacity>
             </View>
 
             {/* Right: Date/Time */}
-            <Text className="text-sm text-gray-500 ml-2">{task.datetime}</Text>
           </View>
         ))}
 

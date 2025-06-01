@@ -18,13 +18,9 @@ import FilterList from "@/component/filterList"; // your own filter component
 import TopBar from "@/component/topBar";
 
 import api from "@/api";
+import { Group } from "@/types";
 
-interface Group {
-  id: string;
-  name: string;
-  numMember: number;
-  description?: string; // optional field
-}
+
 
 const Explore: React.FC = () => {
   const [groups, setGroups] = useState<Group[]>([
