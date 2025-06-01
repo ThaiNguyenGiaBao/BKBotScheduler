@@ -51,6 +51,7 @@ const TabLayout = () => {
       screenOptions={{
         headerShown: false,
         tabBarShowLabel: false,
+        tabBarHideOnKeyboard: true,
         tabBarStyle: {
           minHeight: 70,
           backgroundColor: 'white',
@@ -62,8 +63,8 @@ const TabLayout = () => {
           justifyContent: 'center',
         },
         tabBarIconStyle: {
-          flex: 1
-        }
+          flex: 1,
+        },
       }}
     >
       <Tabs.Screen
