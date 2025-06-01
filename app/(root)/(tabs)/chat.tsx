@@ -91,7 +91,6 @@ const ChatScreen = () => {
             resizeMode="contain"
           />
         )}
-
         <View
           style={{
             backgroundColor: isUser ? '#0061FF' : '#8C8E98',
@@ -100,7 +99,7 @@ const ChatScreen = () => {
             borderRadius: 16,
             borderTopRightRadius: isUser ? 0 : 16,
             borderTopLeftRadius: isUser ? 16 : 0,
-            maxWidth: '70%',
+            maxWidth: '75%',
           }}
         >
           <Text style={{ color: isUser ? '#fff' : '#fff', fontSize: 14 }}>
@@ -114,57 +113,59 @@ const ChatScreen = () => {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }}>
       <TopBar title="Chatbot" />
+
       <KeyboardAvoidingView
-        style={{ flex: 1, backgroundColor: '#fff' }}
+        style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
       >
         <FlatList
           data={messages}
           keyExtractor={(item) => item.id}
           renderItem={renderItem}
-          contentContainerStyle={{ padding: 10 }}
+          contentContainerStyle={{ padding: 16 }}
           showsVerticalScrollIndicator={false}
+          style={{ flex: 1 }}
         />
-      </KeyboardAvoidingView>
-
-      <View
-        style={{
-          flexDirection: 'row',
-          paddingHorizontal: 12,
-          padding: 12,
-        }}
-      >
-        <TextInput
+        <View
           style={{
-            flex: 1,
+            flexDirection: 'row',
+            padding: 12,
             backgroundColor: '#fff',
-            borderWidth: 1,
-            borderColor: '#666876',
-            color: '#666876',
-            borderRadius: 24,
-            paddingHorizontal: 16,
-            fontSize: 14,
           }}
-          multiline
-          numberOfLines={4}
-          placeholder="Nhập tin nhắn ở đây"
-          value={inputText}
-          onChangeText={setInputText}
-          editable={!isBotTyping}
-        />
-        <TouchableOpacity
-          onPress={handleSend}
-          disabled={isBotTyping}
-          style={{ marginLeft: 8, justifyContent: 'center' }}
         >
-          <Ionicons
-            name="send"
-            size={24}
-            color={isBotTyping ? '#0061FF' : '#2979FF'}
+          <TextInput
+            style={{
+              flex: 1,
+              backgroundColor: '#fff',
+              borderWidth: 1,
+              borderColor: '#666876',
+              color: '#666876',
+              borderRadius: 24,
+              paddingHorizontal: 16,
+              paddingVertical: 8,
+              fontSize: 14,
+            }}
+            multiline
+            numberOfLines={4}
+            placeholder="Chat here"
+            value={inputText}
+            onChangeText={setInputText}
+            editable={!isBotTyping}
           />
-        </TouchableOpacity>
-      </View>
+          <TouchableOpacity
+            onPress={handleSend}
+            disabled={isBotTyping}
+            style={{ marginLeft: 8, justifyContent: 'center' }}
+          >
+            <Ionicons
+              name="send"
+              size={24}
+              color={isBotTyping ? '#ccc' : '#2979FF'}
+            />
+          </TouchableOpacity>
+        </View>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   )
 }
