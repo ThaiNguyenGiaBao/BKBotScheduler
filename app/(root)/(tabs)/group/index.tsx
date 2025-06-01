@@ -16,6 +16,8 @@ import GroupItem from "@/component/groupitem"; // your own component
 import images from "@/constants/images"; // your own asset map
 import icons from "@/constants/icons";   // your own icon map
 import FilterList from "@/component/filterList"; // your own filter component
+import TopBar from "@/component/topBar";
+
 
 interface Group {
   id: string;
@@ -81,23 +83,17 @@ const Explore: React.FC = () => {
         showsHorizontalScrollIndicator={false}
       >
         {/* ───────────────────────────────── Header ───────────────────────────────── */}
-        <View className="flex-row justify-between items-center">
-          <TouchableOpacity onPress={() => { /* goBack or whatever */ }}>
-            <Image source={icons.backArrow} style={{ width: 30, height: 30 }} />
-          </TouchableOpacity>
-          <Text className="font-rubik-bold text-2xl">Group</Text>
-          <TouchableOpacity onPress={() => { /* bell action */ }}>
-            <Image source={icons.bell} style={{ width: 30, height: 30 }} />
-          </TouchableOpacity>
-        </View>
+        
 
-        {/* ───────────────────────────────── Spacer ───────────────────────────────── */}
+        <TopBar
+          title="Group"
+          />
+
+
         <View className="mt-3" />
 
-        {/* ───────────────────────────────── FilterList ───────────────────────────────── */}
         <FilterList />
 
-        {/* ───────────────────────────────── Groups List ───────────────────────────────── */}
         <View className="mt-5 space-y-3">
           {groups.map((g) => (
             <GroupItem
@@ -109,7 +105,6 @@ const Explore: React.FC = () => {
           ))}
         </View>
 
-        {/* ───────────────────────────────── “+” Button ───────────────────────────────── */}
         <View className="mt-5 items-center">
           <TouchableOpacity
             className="bg-blue-500 p-3 rounded-full w-14 h-14 items-center justify-center"
@@ -175,7 +170,7 @@ const Explore: React.FC = () => {
 
             {/* Save Button */}
             <TouchableOpacity
-              className="bg-blue-500 rounded-lg py-3 items-center"
+              className="bg-blue-500 rounded-full py-3 items-center"
               onPress={handleCreateGroup}
             >
               <Text className="text-white font-rubik-medium text-base">

@@ -113,6 +113,7 @@ const ChatScreen = () => {
 
   return (
     <KeyboardAvoidingView
+    className='p-3'
       style={{ flex: 1, backgroundColor: '#fff' }}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       keyboardVerticalOffset={90}
@@ -123,7 +124,7 @@ const ChatScreen = () => {
         data={messages}
         keyExtractor={(item) => item.id}
         renderItem={renderItem}
-        contentContainerStyle={{ padding: 16, paddingBottom: 80 }}
+        contentContainerStyle={{  paddingBottom: 80 }}
         showsVerticalScrollIndicator={false}
       />
 
@@ -134,7 +135,6 @@ const ChatScreen = () => {
           left: 0,
           right: 0,
           flexDirection: 'row',
-          padding: 12,
           backgroundColor: '#fff',
           borderTopWidth: 1,
           borderColor: '#eee',
