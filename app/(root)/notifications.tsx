@@ -134,9 +134,9 @@ const Notifications = () => {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#F9F9F9' }}>
+      {/* Header */}
+      <TopBar title="Chatbot" />
       <ScrollView contentContainerStyle={{ padding: 20 }}>
-        {/* Header */}
-        <TopBar title="Chatbot" />
         {/* Filter Chips */}
         <View style={{ flexDirection: 'row', gap: 10, marginBottom: 20 }}>
           {filters.map((f) => (
