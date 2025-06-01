@@ -5,6 +5,7 @@ import ChatBotIcon from '@/component/chatbotIcon'
 import * as SplashScreen from 'expo-splash-screen'
 
 import './global.css'
+import React from 'react'
 
 export default function RootLayout() {
   const [fontsLoaded] = useFonts({
@@ -28,8 +29,8 @@ export default function RootLayout() {
 
   return (
     <>
-      <Stack screenOptions={{ headerShown: false }} />
       <ChatBotIcon />
+      <Stack screenOptions={{ headerShown: false }} />
     </>
   )
 }

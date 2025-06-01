@@ -8,6 +8,7 @@ import {
   FlatList,
   Platform,
   Image,
+  SafeAreaView,
 } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import TopBar from '@/component/topBar'
@@ -48,7 +49,6 @@ const ChatScreen = () => {
     setInputText('')
     setIsBotTyping(true)
 
-    // Simulate bot "thinking"
     setTimeout(() => {
       const botResponse: Message = {
         id: (Date.now() + 1).toString(),
@@ -100,7 +100,7 @@ const ChatScreen = () => {
             borderRadius: 16,
             borderTopRightRadius: isUser ? 0 : 16,
             borderTopLeftRadius: isUser ? 16 : 0,
-            maxWidth: '80%',
+            maxWidth: '75%',
           }}
         >
           <Text style={{ color: isUser ? '#fff' : '#fff', fontSize: 14 }}>
@@ -112,28 +112,24 @@ const ChatScreen = () => {
   }
 
   return (
-    <KeyboardAvoidingView
-    className='p-3'
-      style={{ flex: 1, backgroundColor: '#fff' }}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      keyboardVerticalOffset={90}
-    >
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }}>
       <TopBar title="Chatbot" />
-
-      <FlatList
-        data={messages}
-        keyExtractor={(item) => item.id}
-        renderItem={renderItem}
-        contentContainerStyle={{  paddingBottom: 80 }}
-        showsVerticalScrollIndicator={false}
-      />
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+      >
+        <FlatList
+          data={messages}
+          keyExtractor={(item) => item.id}
+          renderItem={renderItem}
+          contentContainerStyle={{ padding: 16, paddingBottom: 16 }}
+          showsVerticalScrollIndicator={false}
+        />
+      </KeyboardAvoidingView>
 
       <View
         style={{
-          position: 'absolute',
-          bottom: 0,
-          left: 0,
-          right: 0,
           flexDirection: 'row',
           backgroundColor: '#fff',
           borderTopWidth: 1,
@@ -143,7 +139,10 @@ const ChatScreen = () => {
         <TextInput
           style={{
             flex: 1,
-            backgroundColor: '#F1F1F1',
+            backgroundColor: '#fff',
+            borderWidth: 1,
+            borderColor: '666876',
+            color: '#666876',
             borderRadius: 24,
             paddingHorizontal: 16,
             paddingVertical: 8,
@@ -162,11 +161,11 @@ const ChatScreen = () => {
           <Ionicons
             name="send"
             size={24}
-            color={isBotTyping ? '#ccc' : '#2979FF'}
+            color={isBotTyping ? '#0061FF' : '#2979FF'}
           />
         </TouchableOpacity>
       </View>
-    </KeyboardAvoidingView>
+    </SafeAreaView>
   )
 }
 
