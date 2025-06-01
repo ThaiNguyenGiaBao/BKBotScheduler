@@ -12,7 +12,10 @@ const FilterItem = ({ name }: { name: string }) => {
         selected ? "text-white bg-primary-300" : "text-gray-800 bg-blue-100"
       } flex-row items-center bg-gray-100 rounded-full px-3 font-rubik  mt-2`}
     >
-      {name}
+      <Text>
+            {name}
+
+      </Text>
     </TouchableOpacity>
   );
 };

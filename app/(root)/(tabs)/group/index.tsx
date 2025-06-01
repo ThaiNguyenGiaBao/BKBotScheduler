@@ -1,5 +1,5 @@
 // Explore.tsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -14,43 +14,46 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import GroupItem from "@/component/groupitem"; // your own component
 import images from "@/constants/images"; // your own asset map
-import icons from "@/constants/icons";   // your own icon map
 import FilterList from "@/component/filterList"; // your own filter component
 import TopBar from "@/component/topBar";
 
+import api from "@/api";
 
 interface Group {
   id: string;
-  title: string;
-  members: number;
-  imageSrc: any; // replace “any” with whatever your GroupItem expects (e.g. ImageSourcePropType)
+  name: string;
+  numMember: number;
+  description?: string; // optional field
 }
 
 const Explore: React.FC = () => {
-  // 1) State: list of groups
   const [groups, setGroups] = useState<Group[]>([
     {
       id: "1",
-      title: "CNPM",
-      members: 3,
-      imageSrc: images.avatar,
+      name: "CNPM",
+      numMember: 3,
+      description: "Group for CNPM course discussions",
     },
     {
       id: "2",
-      title: "CNPM 2",
-      members: 5,
-      imageSrc: images.avatar,
+      name: "AI Enthusiasts",
+      numMember: 5,
+      description: "Discussing the latest in AI technology",
+    },
+    {
+      id: "3",
+      name: "Web Development",
+      numMember: 4,
+      description: "Sharing web dev tips and resources",
     },
   ]);
 
-  // 2) State: modal visibility
+
   const [modalVisible, setModalVisible] = useState(false);
 
-  // 3) State: input fields inside modal
   const [newTitle, setNewTitle] = useState("");
   const [newDescription, setNewDescription] = useState("");
 
-  // 4) Handler: when “Save” is pressed inside modal
   const handleCreateGroup = () => {
     // Simple validation: must have at least a title
     if (newTitle.trim().length === 0) {
@@ -60,11 +63,22 @@ const Explore: React.FC = () => {
 
     // Create a new group object
     const newGroup: Group = {
-      id: Date.now().toString(), // simple unique ID
-      title: newTitle.trim(),
-      members: 1, // you can adjust or let user input members if you want
-      imageSrc: images.avatar, // replace with whatever default or uploaded image
+      id: Date.now().toString(), 
+      name: newTitle.trim(),
+      numMember: 1, 
+      description: newDescription.trim() || "", // optional description
     };
+
+    // Call your API to create the group
+    api.post("/groups", newGroup)
+      .then((response) => {
+        console.log("Group created successfully:", response.data);
+      }
+      )
+      .catch((error) => {
+        console.error("Failed to create group:", error);
+      }
+    );
 
     // Add to the front (or end) of array
     setGroups((prev) => [newGroup, ...prev]);
@@ -74,6 +88,22 @@ const Explore: React.FC = () => {
     setNewDescription("");
     setModalVisible(false);
   };
+
+  // fetch groups from API on mount
+  useEffect(() => {
+    const fetchGroups = async () => {
+      try {
+        const response = await api.get("/groups"); // Adjust endpoint as needed
+        setGroups(response.data.groups || []);
+        console.log("Fetched groups:", response.data);
+      } catch (error) {
+        console.log("Failed to fetch groups:", error);
+      }
+    };
+
+    fetchGroups();
+  }
+  , []);
 
   return (
     <SafeAreaView className="bg-white flex-1">
@@ -98,9 +128,11 @@ const Explore: React.FC = () => {
           {groups.map((g) => (
             <GroupItem
               key={g.id}
-              title={g.title}
-              members={g.members}
-              imageSrc={g.imageSrc}
+              groupId={g.id}
+              title={g.name}
+              members={g.numMember}
+              description={g.description}
+              imageSrc={images.onboarding3}
             />
           ))}
         </View>
@@ -123,13 +155,11 @@ const Explore: React.FC = () => {
           setModalVisible(false);
         }}
       >
-        {/* Optional: to push content up when keyboard opens */}
         <KeyboardAvoidingView
           behavior={Platform.OS === "ios" ? "padding" : "height"}
           className="flex-1 justify-center items-center bg-black/30"
         >
           <View className="bg-white w-11/12 mx-2 rounded-2xl p-5">
-            {/* Close button */}
             <View className="flex-row mb-4">
               <Text className="text-center text-2xl font-rubik-bold flex-1">
               Create Group
@@ -145,8 +175,10 @@ const Explore: React.FC = () => {
             {/* Placeholder image (replace with your own or let user upload) */}
             <View className="items-center mb-4">
               <Image
+                resizeMode="contain"
+
                 source={images.onboarding2 /* your illustration asset */}
-                style={{ width: 300, height: 250, resizeMode: "contain" }}
+                style={{ width: 300, height: 250 }}
               />
             </View>
 
