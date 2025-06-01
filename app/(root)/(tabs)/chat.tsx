@@ -100,7 +100,7 @@ const ChatScreen = () => {
             borderRadius: 16,
             borderTopRightRadius: isUser ? 0 : 16,
             borderTopLeftRadius: isUser ? 16 : 0,
-            maxWidth: '75%',
+            maxWidth: '70%',
           }}
         >
           <Text style={{ color: isUser ? '#fff' : '#fff', fontSize: 14 }}>
@@ -115,7 +115,7 @@ const ChatScreen = () => {
     <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }}>
       <TopBar title="Chatbot" />
       <KeyboardAvoidingView
-        style={{ flex: 1 }}
+        style={{ flex: 1, backgroundColor: '#fff' }}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
       >
@@ -123,7 +123,7 @@ const ChatScreen = () => {
           data={messages}
           keyExtractor={(item) => item.id}
           renderItem={renderItem}
-          contentContainerStyle={{ padding: 16, paddingBottom: 16 }}
+          contentContainerStyle={{ padding: 10 }}
           showsVerticalScrollIndicator={false}
         />
       </KeyboardAvoidingView>
@@ -131,9 +131,8 @@ const ChatScreen = () => {
       <View
         style={{
           flexDirection: 'row',
-          backgroundColor: '#fff',
-          borderTopWidth: 1,
-          borderColor: '#eee',
+          paddingHorizontal: 12,
+          padding: 12,
         }}
       >
         <TextInput
@@ -141,14 +140,15 @@ const ChatScreen = () => {
             flex: 1,
             backgroundColor: '#fff',
             borderWidth: 1,
-            borderColor: '666876',
+            borderColor: '#666876',
             color: '#666876',
             borderRadius: 24,
             paddingHorizontal: 16,
-            paddingVertical: 8,
             fontSize: 14,
           }}
-          placeholder="Chat here"
+          multiline
+          numberOfLines={4}
+          placeholder="Nhập tin nhắn ở đây"
           value={inputText}
           onChangeText={setInputText}
           editable={!isBotTyping}

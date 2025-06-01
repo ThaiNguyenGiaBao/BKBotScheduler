@@ -24,8 +24,9 @@ const TopBar: React.FC<TopBarProps> = ({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        paddingBottom: 8,
+        padding: 12,
         backgroundColor: 'white',
+        position: 'relative', // Enable absolute positioning for children
       }}
     >
       {showBackButton ? (
@@ -35,6 +36,7 @@ const TopBar: React.FC<TopBarProps> = ({
             backgroundColor: '#0061FF1A',
             padding: 8,
             borderRadius: 999,
+            zIndex: 1, // Ensure button is above the title
           }}
         >
           <Ionicons name="arrow-back" size={22} color="#191D31" />
@@ -43,7 +45,17 @@ const TopBar: React.FC<TopBarProps> = ({
         <View style={{ width: 28 }} />
       )}
 
-      <Text style={{ fontSize: 24, fontWeight: '700', color: '#000' }}>
+      <Text
+        style={{
+          fontSize: 24,
+          fontWeight: '500',
+          color: '#000',
+          position: 'absolute',
+          left: 0,
+          right: 0,
+          textAlign: 'center',
+        }}
+      >
         {title}
       </Text>
 
