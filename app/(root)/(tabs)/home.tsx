@@ -26,22 +26,21 @@ const TaskItem = ({ title, time }: { title: string; time: string }) => (
 export default function Home() {
   return (
     <SafeAreaView className="bg-white h-full">
-      <ScrollView className="p-4" showsVerticalScrollIndicator={false}>
-        {/* Header */}
-        <View className="flex-row justify-between items-center mb-4">
-          <View className="flex-row items-center gap-2">
-            <Image
-              source={images.avatar}
-              style={{ width: 40, height: 40, borderRadius: 20 }}
-            />
-            <View>
-              <Text className="text-gray-500 text-sm">Good morning</Text>
-              <Text className="font-bold text-base">PingPongBKD</Text>
-            </View>
+      {/* Header */}
+      <View className="flex-row justify-between items-center mb-4 p-4 pb-0">
+        <View className="flex-row items-center gap-2">
+          <Image
+            source={images.avatar}
+            style={{ width: 40, height: 40, borderRadius: 20 }}
+          />
+          <View>
+            <Text className="text-gray-500 text-sm">Good morning</Text>
+            <Text className="font-bold text-base">PingPongBKD</Text>
           </View>
-          <Image source={icons.bell} style={{ width: 24, height: 24 }} />
         </View>
-
+        <Image source={icons.bell} style={{ width: 24, height: 24 }} />
+      </View>
+      <ScrollView className="p-4" showsVerticalScrollIndicator={false}>
         {/* Banner */}
         <View className="flex justify-center justify-items-center">
           <Carousel />
