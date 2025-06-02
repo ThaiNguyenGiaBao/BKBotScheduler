@@ -103,10 +103,6 @@ const Explore: React.FC = () => {
 
   return (
     <SafeAreaView className="bg-white flex-1">
-      <TopBar
-          title="Group"
-          />
-
       <ScrollView
         className="p-3"
         showsVerticalScrollIndicator={false}
@@ -115,7 +111,10 @@ const Explore: React.FC = () => {
         {/* ───────────────────────────────── Header ───────────────────────────────── */}
         
 
-        
+        <TopBar
+          title="Group"
+          />
+
 
         <View className="mt-3" />
 

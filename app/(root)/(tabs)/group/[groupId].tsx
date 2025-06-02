@@ -13,12 +13,9 @@ import {
   KeyboardAvoidingView,
   Platform,
   StyleSheet,
-  TouchableWithoutFeedback,
-  Keyboard,
-  Pressable,
 } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { Ionicons, Feather } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
 import images from "@/constants/images";
 import TopBar from "@/component/topBar";
 import { Group } from "@/types";
@@ -58,7 +55,6 @@ export default function GroupDetail() {
   const avatarSrc = images.avatar; // placeholder avatar
 
   const [tasks, setTasks] = useState<Event[]>([]);
-
 
   const handleEventChange = (field: keyof Event, value: string) => {
     console.log(`Updating ${field} to:`, value);
@@ -107,7 +103,7 @@ export default function GroupDetail() {
       setTasks((prev) => [...prev, response.data]);
       setNewEvent({ id: "", description: "", startTime: "", endTime: "" });
       setModalVisible(false);
-    } catch (error : any) {
+    } catch (error: any) {
       console.error("Failed to create event:", error);
     }
   };
@@ -174,7 +170,15 @@ export default function GroupDetail() {
           </View>
 
           {/* Settings icon (no-op) */}
-          <TouchableOpacity className="p-2">
+          <TouchableOpacity
+            className="p-2"
+            onPress={() => {
+              router.push({
+                pathname: "/group/members/[groupId]",
+                params: { groupId },
+              });
+            }}
+          >
             <Ionicons name="settings-outline" size={22} color="#1A1A1A" />
           </TouchableOpacity>
         </View>
