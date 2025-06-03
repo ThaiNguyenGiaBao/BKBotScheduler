@@ -3,5 +3,6 @@ export interface Notification {
     body: string
     isRead: boolean
     groupId: string
-    createdAt?: string // Optional for grouping, simulated if not returned
+    createTime?: string // Optional for grouping, simulated if not returned
+    groupName?: string
   }
