@@ -8,6 +8,7 @@ import {
   setupNotificationListeners,
 } from '@/utils/notificationSetup'
 import { notificationService } from '@/services/notificationService'
+import { ThemeProvider } from '@/contexts/ThemeContext'
 
 // For other page except Sign In Page
 const AppLayout = () => {
@@ -33,9 +34,11 @@ const AppLayout = () => {
     }
   }, [])
   return (
-    <GestureHandlerRootView>
-      <Slot />
-    </GestureHandlerRootView>
+    <ThemeProvider>
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <Slot />
+      </GestureHandlerRootView>
+    </ThemeProvider>
   )
 }
 
