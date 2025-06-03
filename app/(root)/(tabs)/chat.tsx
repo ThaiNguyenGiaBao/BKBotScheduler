@@ -1,3 +1,4 @@
+// app/(root)/(tabs)/chat.tsx
 import React, { useEffect, useState } from 'react'
 import {
   View,

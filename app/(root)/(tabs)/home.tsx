@@ -1,3 +1,4 @@
+// app/(root)/(tabs)/home.tsx
 import React from "react";
 import {
   Text,

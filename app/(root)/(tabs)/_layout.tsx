@@ -1,3 +1,4 @@
+// app/(root)/(tabs)/_layout.tsx
 import { View, Text, Image } from 'react-native'
 import React from 'react'
 import { Tabs } from 'expo-router'
