@@ -46,8 +46,8 @@ export default function GroupDetail() {
   const [newEvent, setNewEvent] = useState<Event>({
     id: "",
     description: "",
-    startTime: "",
-    endTime: "",
+    startTime: new Date().toISOString(), // Default to current time
+    endTime: new Date(new Date().getTime() + 3600000).toISOString(), // Default to 1 hour later
   });
 
   // 2) In a real app, you would fetch group data based on groupId.

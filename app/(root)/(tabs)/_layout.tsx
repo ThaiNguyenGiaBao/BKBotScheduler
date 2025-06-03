@@ -1,24 +1,24 @@
 // app/(root)/(tabs)/_layout.tsx
-import { View, Text, Image } from 'react-native'
-import React from 'react'
-import { Tabs } from 'expo-router'
-import icons from '@/constants/icons'
+import { View, Text, Image } from "react-native";
+import React from "react";
+import { Tabs } from "expo-router";
+import icons from "@/constants/icons";
 
 const TabIcon = ({
   focused,
   icon,
   title,
 }: {
-  focused: boolean
-  icon: any
-  title: string
+  focused: boolean;
+  icon: any;
+  title: string;
 }) => {
   return (
     <View
       style={{
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
         gap: 2,
       }}
     >
@@ -28,14 +28,14 @@ const TabIcon = ({
         style={{
           width: 24,
           height: 24,
-          tintColor: focused ? '#0061ff' : '#666876',
+          tintColor: focused ? "#0061ff" : "#666876",
         }}
       />
       <Text
         style={{
           fontSize: 10,
-          color: focused ? '#0061ff' : '#666876',
-          fontWeight: focused ? '800' : '500',
+          color: focused ? "#0061ff" : "#666876",
+          fontWeight: focused ? "800" : "500",
           lineHeight: 16,
         }}
         numberOfLines={1}
@@ -43,8 +43,8 @@ const TabIcon = ({
         {title}
       </Text>
     </View>
-  )
-}
+  );
+};
 
 const TabLayout = () => {
   return (
@@ -55,13 +55,13 @@ const TabLayout = () => {
         tabBarHideOnKeyboard: true,
         tabBarStyle: {
           minHeight: 70,
-          backgroundColor: 'white',
+          backgroundColor: "white",
         },
         tabBarItemStyle: {
           flex: 1,
           height: 70,
-          alignItems: 'center',
-          justifyContent: 'center',
+          alignItems: "center",
+          justifyContent: "center",
         },
         tabBarIconStyle: {
           flex: 1,
@@ -71,7 +71,7 @@ const TabLayout = () => {
       <Tabs.Screen
         name="home"
         options={{
-          title: 'Home',
+          title: "Home",
           headerShown: false,
           tabBarIcon: ({ focused }) => (
             <TabIcon focused={focused} icon={icons.home} title="Home" />
@@ -81,7 +81,7 @@ const TabLayout = () => {
       <Tabs.Screen
         name="group/index"
         options={{
-          title: 'Group',
+          title: "Group",
           headerShown: false,
           tabBarIcon: ({ focused }) => (
             <TabIcon focused={focused} icon={icons.search} title="Group" />
@@ -91,10 +91,10 @@ const TabLayout = () => {
       <Tabs.Screen
         name="chat"
         options={{
-          title: 'Chat',
+          title: "Chat",
           headerShown: false,
           tabBarIcon: ({ focused }) => (
-            <TabIcon focused={focused} icon={icons.chat} title={'Chat'} />
+            <TabIcon focused={focused} icon={icons.chat} title={"Chat"} />
           ),
         }}
       />
@@ -102,15 +102,15 @@ const TabLayout = () => {
       <Tabs.Screen
         name="profile"
         options={{
-          title: 'Profile',
+          title: "Profile",
           headerShown: false,
           tabBarIcon: ({ focused }) => (
-            <TabIcon focused={focused} icon={icons.person} title={'Profile'} />
+            <TabIcon focused={focused} icon={icons.person} title={"Profile"} />
           ),
         }}
       />
     </Tabs>
-  )
-}
+  );
+};
 
-export default TabLayout
+export default TabLayout;

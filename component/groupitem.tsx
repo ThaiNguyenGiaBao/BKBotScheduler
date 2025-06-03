@@ -30,7 +30,7 @@ const GroupItem: React.FC<GroupItemProps> = ({
   const onPressGroup = () => {
     // Navigates to: /group/<groupId>
     router.push({
-      pathname: "/group/[groupId]",
+      pathname: "/group/events/[groupId]",
       params: { groupId },
     });
   };

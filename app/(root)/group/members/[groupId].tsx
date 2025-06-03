@@ -56,7 +56,7 @@ const GroupSettings = ({}) => {
       setErr("Please enter a valid email address.");
       return;
     }
-    
+
     //navigation.navigate("AddMember"); // Navigate to add member screen
     try {
       console.log("groupId:", groupId);
@@ -69,17 +69,17 @@ const GroupSettings = ({}) => {
       console.log("Added new member:", newMemberEmail);
 
       setMemberList((prevMembers) => [
-      ...prevMembers,
-      {
-        id: Math.random().toString(), 
-        name: response.data.name || "New Member", // Use response data if available
-        email: response.data.email || newMemberEmail, // Use response data if available
-        isOwner: false, // Default to non-owner
-      },
-    ]);
+        ...prevMembers,
+        {
+          id: Math.random().toString(),
+          name: response.data.name || "New Member", // Use response data if available
+          email: response.data.email || newMemberEmail, // Use response data if available
+          isOwner: false, // Default to non-owner
+        },
+      ]);
     } catch (error: any) {
       console.log("Failed to add member:", error);
-      setErr(error.response.data.message|| "Failed to add member");
+      setErr(error.response.data.message || "Failed to add member");
 
       // Optionally, you can show an alert or toast message here
     }
