@@ -62,8 +62,16 @@ const Onboarding = ({}) => {
     const checkOnboardingStatus = async () => {
       const hasSeenOnboarding = await AsyncStorage.getItem('hasSeenOnboarding')
       if (hasSeenOnboarding) {
-        setIsOnboardingVisible(false)
-        router.replace('/(root)/(tabs)/home') // Navigate to home
+        // setIsOnboardingVisible(false)
+        setCurrentPage(3) // Set to last page if already seen
+        // Need to wait for the component to render before scrolling
+        setTimeout(() => {
+          scrollRef.current?.scrollTo({
+            x: 3 * width,
+            animated: false,
+          });
+        }, 100);
+        // router.replace('/(root)/(tabs)/home') // Navigate to home
       }
     }
     checkOnboardingStatus()
