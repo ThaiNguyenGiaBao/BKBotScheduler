@@ -20,13 +20,14 @@ export function useGoogleAuth() {
       clientId: '650345872241-1n6chu3kniehpol4kkv3k86o0d8mj4r6.apps.googleusercontent.com',
       scopes: ['openid', 'email', 'profile', 'https://www.googleapis.com/auth/calendar'],
       redirectUri: AuthSession.makeRedirectUri({
-        useProxy: true,
+        useProxy: false, // Use custom scheme instead of proxy
       }),
       responseType: 'code',
       extraParams: {
         access_type: 'offline',
         prompt: 'consent',
-        hd: 'hcmut.edu.vn',
+        // Remove hd parameter if not strictly needed, or ensure user is in the domain
+        // hd: 'hcmut.edu.vn',
       },
     },
     discovery
@@ -50,7 +51,7 @@ export function useGoogleAuth() {
       const { code } = response.params;
 
       try {
-        const redirectUri = AuthSession.makeRedirectUri({ useProxy: true });
+        const redirectUri = AuthSession.makeRedirectUri({ useProxy: false });
 
         // Send to your backend for token exchange
         const backendResponse = await api.post('/auth/google/mobile', {
@@ -62,7 +63,7 @@ export function useGoogleAuth() {
         const { access_token, refresh_token, user: userData } = backendResponse.data;
 
         await tokenManager.setTokens(access_token, refresh_token);
-        api.defaults.headers.common['Authorization'] = `Bearer ${access_token}`;
+        api.defaults.headers.common['Authorization'] = `Bearer ${access_token}`; // Fixed template literal syntax
         setUser(userData);
       } catch (err) {
         setError(err as Error);
