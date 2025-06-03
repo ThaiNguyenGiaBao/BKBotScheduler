@@ -14,13 +14,10 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import GroupItem from "@/component/groupitem"; // your own component
 import images from "@/constants/images"; // your own asset map
-import FilterList from "@/component/filterList"; // your own filter component
 import TopBar from "@/component/topBar";
 
 import api from "@/api";
 import { Group } from "@/types";
-
-
 
 const Explore: React.FC = () => {
   const [groups, setGroups] = useState<Group[]>([
@@ -44,6 +41,10 @@ const Explore: React.FC = () => {
     },
   ]);
 
+  const [err, setErr] = useState({
+    name: "",
+    description: "",
+  });
 
   const [modalVisible, setModalVisible] = useState(false);
 
@@ -54,27 +55,32 @@ const Explore: React.FC = () => {
     // Simple validation: must have at least a title
     if (newTitle.trim().length === 0) {
       // You can show an Alert or set an error message, etc.
+      setErr((prev) => ({ ...prev, name: "Group name is required." }));
+      return;
+    }
+    if (newDescription.trim().length === 0) {
+      // Optional description, so no error here
+      setErr((prev) => ({ ...prev, description: "Description is required" }));
       return;
     }
 
     // Create a new group object
     const newGroup: Group = {
-      id: Date.now().toString(), 
+      id: Date.now().toString(),
       name: newTitle.trim(),
-      numMember: 1, 
+      numMember: 1,
       description: newDescription.trim() || "", // optional description
     };
 
     // Call your API to create the group
-    api.post("/groups", newGroup)
+    api
+      .post("/groups", newGroup)
       .then((response) => {
         console.log("Group created successfully:", response.data);
-      }
-      )
+      })
       .catch((error) => {
         console.error("Failed to create group:", error);
-      }
-    );
+      });
 
     // Add to the front (or end) of array
     setGroups((prev) => [newGroup, ...prev]);
@@ -98,27 +104,19 @@ const Explore: React.FC = () => {
     };
 
     fetchGroups();
-  }
-  , []);
+  }, []);
 
   return (
     <SafeAreaView className="bg-white flex-1">
+      <TopBar title="Group" />
       <ScrollView
         className="p-3"
         showsVerticalScrollIndicator={false}
         showsHorizontalScrollIndicator={false}
       >
         {/* ───────────────────────────────── Header ───────────────────────────────── */}
-        
-
-        <TopBar
-          title="Group"
-          />
-
 
         <View className="mt-3" />
-
-        <FilterList />
 
         <View className="mt-5 space-y-3">
           {groups.map((g) => (
@@ -158,21 +156,19 @@ const Explore: React.FC = () => {
           <View className="bg-white w-11/12 mx-2 rounded-2xl p-5">
             <View className="flex-row mb-4">
               <Text className="text-center text-2xl font-rubik-bold flex-1">
-              Create Group
-            </Text>
+                Create Group
+              </Text>
               <TouchableOpacity onPress={() => setModalVisible(false)}>
                 <Text className="text-xl font-bold text-red-600">&times;</Text>
               </TouchableOpacity>
             </View>
 
             {/* Title */}
-            
 
             {/* Placeholder image (replace with your own or let user upload) */}
             <View className="items-center mb-4">
               <Image
                 resizeMode="contain"
-
                 source={images.onboarding2 /* your illustration asset */}
                 style={{ width: 300, height: 250 }}
               />
@@ -185,6 +181,7 @@ const Explore: React.FC = () => {
               onChangeText={setNewTitle}
               className="border border-gray-300 rounded-lg px-3 py-2 mb-3"
             />
+            {err.name && <Text className="text-red-500 mb-2">{err.name}</Text>}
 
             {/* Input: Group Description (optional) */}
             <TextInput
@@ -195,6 +192,10 @@ const Explore: React.FC = () => {
               multiline
               numberOfLines={2}
             />
+
+            {err.description && (
+              <Text className="text-red-500 mb-2">{err.description}</Text>
+            )}
 
             {/* Save Button */}
             <TouchableOpacity

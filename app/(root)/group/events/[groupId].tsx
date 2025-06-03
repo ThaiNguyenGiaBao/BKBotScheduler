@@ -136,18 +136,17 @@ export default function GroupDetail() {
 
   return (
     <SafeAreaView className="flex-1 bg-white p-5">
+      <TopBar
+          title="Group Details"
+          
+        />
       <ScrollView
         className="p-3"
         showsVerticalScrollIndicator={false}
         showsHorizontalScrollIndicator={false}
       >
         {/* ─────────────────────────── Header ─────────────────────────── */}
-        <TopBar
-          title="Group Details"
-          showBackButton={true}
-          onBackPress={() => router.back()}
-          showNotiIcon={false}
-        />
+        
 
         {/* ─────────────────────── Group Header Info ─────────────────────── */}
         <View className="flex-row items-center  py-6" style={{ padding: 10 }}>
