@@ -231,7 +231,6 @@ const ChatScreen = () => {
     try {
       setLoading(true)
       const history = await getChatbotHistory()
-      console.log('-------history---------', history)
       const formattedMessages: Message[] = history.reverse().flatMap((item) => [
         {
           id: item.id + '_user',
@@ -248,7 +247,6 @@ const ChatScreen = () => {
       ])
       setMessages(formattedMessages)
     } catch (error) {
-      console.error('getChatbotHistory', error)
       Alert.alert('Error', 'Cannot load chat history.')
     } finally {
       setLoading(false)
@@ -276,7 +274,6 @@ const ChatScreen = () => {
 
     try {
       const res = await sendMessageToChatbot({ message: userMessage.text })
-      console.log(res)
       const botMessage: Message = {
         id: Date.now().toString() + '_bot',
         text:

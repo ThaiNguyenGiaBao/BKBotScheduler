@@ -35,6 +35,7 @@ const Notifications = () => {
     const fetchData = async () => {
       try {
         const data = await getNotifications()
+        console.log(data)
         const enriched = data.map((noti) => ({
           ...noti,
           createdAt: dayjs()
@@ -219,78 +220,102 @@ const Notifications = () => {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
       <TopBar title="Notifications" />
-      <ScrollView contentContainerStyle={{ padding: 20 }}>
-        {/* Filter Buttons */}
+      {grouped.today.length === 0 &&
+      grouped.thisWeek.length === 0 &&
+      grouped.previous.length === 0 ? (
         <View
           style={{
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            marginBottom: 20,
+            flex: 1,
+            justifyContent: 'center',
+            alignItems: 'center',
+            padding: 20,
           }}
         >
-          {filters.map((f) => (
-            <TouchableOpacity
-              key={f}
-              onPress={() => setSelectedFilter(f)}
-              style={{
-                backgroundColor: selectedFilter === f ? '#0061FF' : '#0061FF0A',
-                paddingHorizontal: 14,
-                paddingVertical: 6,
-                borderRadius: 999,
-              }}
-            >
-              <Text
+          <Ionicons name="notifications-off-outline" size={64} color="#ccc" />
+          <Text style={{ fontSize: 16, color: '#999', marginTop: 10 }}>
+            Không có thông báo
+          </Text>
+        </View>
+      ) : (
+        <ScrollView contentContainerStyle={{ padding: 20 }}>
+          {/* Filter Buttons */}
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              marginBottom: 20,
+            }}
+          >
+            {filters.map((f) => (
+              <TouchableOpacity
+                key={f}
+                onPress={() => setSelectedFilter(f)}
                 style={{
-                  color: selectedFilter === f ? '#FFF' : '#191D31',
-                  fontWeight: '500',
+                  backgroundColor:
+                    selectedFilter === f ? '#0061FF' : '#0061FF0A',
+                  paddingHorizontal: 14,
+                  paddingVertical: 6,
+                  borderRadius: 999,
                 }}
               >
-                {f}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </View>
+                <Text
+                  style={{
+                    color: selectedFilter === f ? '#FFF' : '#191D31',
+                    fontWeight: '500',
+                  }}
+                >
+                  {f}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
 
-        {/* Grouped Lists */}
-        {grouped.today.length > 0 && (
-          <>
-            <Text
-              style={{ fontWeight: 'bold', color: '#0057FF', marginBottom: 10 }}
-            >
-              Today
-            </Text>
-            {grouped.today.map(renderNotiCard)}
-          </>
-        )}
-        {grouped.thisWeek.length > 0 && (
-          <>
-            <Text
-              style={{
-                fontWeight: 'bold',
-                color: '#0057FF',
-                marginVertical: 10,
-              }}
-            >
-              This Week
-            </Text>
-            {grouped.thisWeek.map(renderNotiCard)}
-          </>
-        )}
-        {grouped.previous.length > 0 && (
-          <>
-            <Text
-              style={{
-                fontWeight: 'bold',
-                color: '#0057FF',
-                marginVertical: 10,
-              }}
-            >
-              Previous
-            </Text>
-            {grouped.previous.map(renderNotiCard)}
-          </>
-        )}
-      </ScrollView>
+          {/* Grouped Lists */}
+
+          {grouped.today.length > 0 && (
+            <>
+              <Text
+                style={{
+                  fontWeight: 'bold',
+                  color: '#0057FF',
+                  marginBottom: 10,
+                }}
+              >
+                Today
+              </Text>
+              {grouped.today.map(renderNotiCard)}
+            </>
+          )}
+          {grouped.thisWeek.length > 0 && (
+            <>
+              <Text
+                style={{
+                  fontWeight: 'bold',
+                  color: '#0057FF',
+                  marginVertical: 10,
+                }}
+              >
+                This Week
+              </Text>
+              {grouped.thisWeek.map(renderNotiCard)}
+            </>
+          )}
+          {grouped.previous.length > 0 && (
+            <>
+              <Text
+                style={{
+                  fontWeight: 'bold',
+                  color: '#0057FF',
+                  marginVertical: 10,
+                }}
+              >
+                Previous
+              </Text>
+              {grouped.previous.map(renderNotiCard)}
+            </>
+          )}
+        </ScrollView>
+      )}
       {renderModal()}
     </SafeAreaView>
   )
