@@ -1,3 +1,4 @@
+// app/(root)/(tabs)/home.tsx
 import React from "react";
 import {
   Text,
@@ -83,20 +84,6 @@ export default function Home() {
             </View>
           </View>
         </View>
-        <Button
-          title="Try!"
-          onPress={() => {
-            console.log("Try!");
-
-            try {
-              throw new Error("First error");
-            } catch (error) {
-              console.log("Error!", error);
-              Sentry.captureException(error);
-            }
-          }}
-        />
-
         {/* Tasks */}
         <Text className="font-bold text-xl mb-4 text-center">Nhiệm vụ</Text>
 

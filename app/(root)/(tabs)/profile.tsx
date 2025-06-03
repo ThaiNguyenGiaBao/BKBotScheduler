@@ -1,3 +1,4 @@
+// app/(root)/(tabs)/profile.tsx
 import React from 'react'
 import { View, Text, Image, TouchableOpacity, ScrollView } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
