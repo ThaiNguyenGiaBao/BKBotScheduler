@@ -19,7 +19,8 @@
       "permissions": [
         "android.permission.RECEIVE_BOOT_COMPLETED",
         "android.permission.VIBRATE"
-      ]
+      ],
+      "package": "com.myapp.authdemo"
     },
     "web": {
       "bundler": "metro",

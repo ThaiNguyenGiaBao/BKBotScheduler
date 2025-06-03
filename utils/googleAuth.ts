@@ -12,13 +12,16 @@ const discovery = {
   tokenEndpoint: 'https://oauth2.googleapis.com/token',
 };
 
-// Use Expo's auth proxy or your custom domain
-const redirectUri = AuthSession.makeRedirectUri(); // Defaults to Expo proxy (e.g., https://auth.expo.io/@yourusername/your-app-slug)
-
 export function useGoogleAuth() {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
+
+  // Generate redirect URI
+  const redirectUri = AuthSession.makeRedirectUri({
+    scheme: 'myapp',
+    path: 'redirect',
+  });
 
   // Log redirectUri for debugging
   console.log('Generated redirectUri:', redirectUri);
@@ -65,17 +68,19 @@ export function useGoogleAuth() {
       const { code } = response.params;
 
       try {
+        // Log redirectUri sent to backend
         console.log('Sending redirectUri to backend:', redirectUri);
 
         // Exchange code for tokens via backend
         const backendResponse = await api.post('/auth/google/mobile', {
           code,
-          codeVerifier: request?.codeVerifier,
+          code_verifier: request?.codeVerifier,
           redirect_uri: redirectUri,
         });
 
         const { access_token, refresh_token, user: userData } = backendResponse.data;
 
+        // Store tokens and set auth header
         await tokenManager.setTokens(access_token, refresh_token);
         api.defaults.headers.common['Authorization'] = `Bearer ${access_token}`;
         setUser(userData);

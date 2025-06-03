@@ -9,11 +9,12 @@ import {
   Dimensions,
 } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
+import AsyncStorage from '@react-native-async-storage/async-storage'
+import { router } from 'expo-router'
+
 import images from '@/constants/images'
 import icons from '@/constants/icons'
-import { router, Router } from 'expo-router'
-import AsyncStorage from '@react-native-async-storage/async-storage'
-import { useGoogleAuth } from '@/utils/googleAuth';
+import { useSignIn, useAuth } from '@clerk/clerk-expo'
 
 const { width } = Dimensions.get('window')
 
@@ -43,56 +44,72 @@ const PAGES = [
   },
   {
     key: '4',
-    image: images.onboarding4, // <-- your final image
+    image: images.onboarding4,
     subtitle: '',
     title: 'The Future Of Scheduling Starts Here.',
     description: '',
-    showGoogleSignIn: true, // <-- flag to render the Google button
+    showGoogleSignIn: true,
   },
 ]
 
-const Onboarding = ({}) => {
+const Onboarding = () => {
   const scrollRef = useRef<ScrollView>(null)
   const [currentPage, setCurrentPage] = useState(0)
   const [isOnboardingVisible, setIsOnboardingVisible] = useState(true)
 
-  const { signIn, loading, error, user } = useGoogleAuth();
+  const { signIn, isLoaded } = useSignIn()
+  const { isSignedIn } = useAuth()
+
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  const handleGoogleSignIn = async () => {
+    if (!isLoaded) return
+    setLoading(true)
+    setError(null)
+
+    try {
+      await signIn.authenticateWithRedirect({
+        strategy: 'oauth_google',
+        redirectUrl: 'yourapp://auth/callback',
+        redirectUrlComplete: 'yourapp://auth/callback',
+      })
+    } catch (err: any) {
+      console.error('OAuth error:', err)
+      setError(err.message || 'Google Sign-In failed.')
+    } finally {
+      setLoading(false)
+    }
+  }
 
   useEffect(() => {
     const checkOnboardingStatus = async () => {
       const hasSeenOnboarding = await AsyncStorage.getItem('hasSeenOnboarding')
       if (hasSeenOnboarding) {
-        // setIsOnboardingVisible(false)
-        setCurrentPage(3) // Set to last page if already seen
-        // Need to wait for the component to render before scrolling
+        setCurrentPage(3)
         setTimeout(() => {
           scrollRef.current?.scrollTo({
             x: 3 * width,
             animated: false,
-          });
-        }, 100);
-        // router.replace('/(root)/(tabs)/home') // Navigate to home
+          })
+        }, 100)
       }
     }
     checkOnboardingStatus()
   }, [])
 
   useEffect(() => {
-    if (user) {
-      // Save onboarding completion
-      AsyncStorage.setItem('hasSeenOnboarding', 'true');
-      // Navigate to home screen
-      router.replace('/(root)/(tabs)/home');
+    if (isSignedIn) {
+      AsyncStorage.setItem('hasSeenOnboarding', 'true')
+      router.replace('/(root)/(tabs)/home')
     }
-  }, [user]);
+  }, [isSignedIn])
 
-  
-  const handleScroll = (e:any) => {
+  const handleScroll = (e: any) => {
     const page = Math.round(e.nativeEvent.contentOffset.x / width)
     setCurrentPage(page)
   }
 
-  // inside your Onboarding component:
   const handleNext = async () => {
     if (currentPage < PAGES.length - 1) {
       scrollRef.current?.scrollTo({
@@ -100,7 +117,7 @@ const Onboarding = ({}) => {
         animated: true,
       })
     } else {
-      await AsyncStorage.setItem('hasSeenOnboarding', 'true') // Save flag
+      await AsyncStorage.setItem('hasSeenOnboarding', 'true')
       router.replace('/(root)/(tabs)/home')
     }
   }
@@ -115,7 +132,7 @@ const Onboarding = ({}) => {
   }
 
   if (!isOnboardingVisible) {
-    return null // Don't render onboarding if already seen
+    return null
   }
 
   return (
@@ -140,7 +157,7 @@ const Onboarding = ({}) => {
               resizeMode="contain"
             />
 
-            <View className="flex-1 items-center ">
+            <View className="flex-1 items-center">
               {page.subtitle.length > 0 && (
                 <Text className="uppercase text-gray-400">{page.subtitle}</Text>
               )}
@@ -154,34 +171,34 @@ const Onboarding = ({}) => {
               )}
 
               {page.showGoogleSignIn && (
-                <TouchableOpacity 
-                    className="shadow-md rounded-3xl bg-white p-3 mt-6 w-5/6"
-                    onPress={signIn}
-                    disabled={loading}
-                  >
-                    <View className="flex-row items-center justify-center">
-                      <Image
-                        source={icons.google}
-                        style={{ width: 20, height: 20 }}
-                      />
-                      <Text className="font-rubik-medium ml-2 text-lg">
-                        {loading ? "Signing in..." : "Sign in with Google"}
-                      </Text>
-                    </View>
+                <TouchableOpacity
+                  className="shadow-md rounded-3xl bg-white p-3 mt-6 w-5/6"
+                  onPress={handleGoogleSignIn}
+                  disabled={loading}
+                >
+                  <View className="flex-row items-center justify-center">
+                    <Image
+                      source={icons.google}
+                      style={{ width: 20, height: 20 }}
+                    />
+                    <Text className="font-rubik-medium ml-2 text-lg">
+                      {loading ? 'Signing in...' : 'Sign in with Google'}
+                    </Text>
+                  </View>
                 </TouchableOpacity>
               )}
 
               {currentPage === PAGES.length - 1 && error && (
-              <Text className="text-red-500 mt-2 text-center">
-                {typeof error === 'string' ? error : 'Sign in failed'}
-              </Text>
-              )}  
+                <Text className="text-red-500 mt-2 text-center">
+                  {error}
+                </Text>
+              )}
             </View>
           </View>
         ))}
       </ScrollView>
 
-      {/* page indicator */}
+      {/* Page indicator */}
       <View className="absolute bottom-24 w-full flex-row justify-center space-x-2">
         {PAGES.map((_, idx) => (
           <View
@@ -193,7 +210,7 @@ const Onboarding = ({}) => {
         ))}
       </View>
 
-      {/* Back / Next */}
+      {/* Back / Next buttons */}
       <View className="absolute bottom-10 w-full flex-row justify-between px-8">
         <TouchableOpacity onPress={handleBack} disabled={currentPage === 0}>
           <Text
