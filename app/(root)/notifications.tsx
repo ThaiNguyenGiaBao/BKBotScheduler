@@ -19,7 +19,11 @@ import { router } from 'expo-router'
 import TopBar from '@/component/topBar'
 import icons from '@/constants/icons'
 import { Notification } from '@/api/notification/types'
-import { getNotifications } from '@/api/notification/notification'
+import {
+  getNotifications,
+  toggleNotificationRead,
+} from '@/api/notification/notification'
+import * as Haptics from 'expo-haptics'
 
 dayjs.extend(relativeTime)
 
@@ -103,9 +107,36 @@ const Notifications = () => {
         alignItems: 'center',
         marginBottom: 10,
       }}
-      onPress={() => {
-        setSelectedNotification(item)
-        setModalVisible(true)
+      onPress={async () => {
+        try {
+          // Open modal
+          setSelectedNotification(item)
+          setModalVisible(true)
+
+          // Toggle read status
+          await toggleNotificationRead(item.id, true)
+          setNotifications((prev) =>
+            prev.map((noti) =>
+              noti.id === item.id ? { ...noti, isRead: !noti.isRead } : noti
+            )
+          )
+          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
+        } catch (err) {
+          console.error('Error toggling read status on press', err)
+        }
+      }}
+      onLongPress={async () => {
+        try {
+          await toggleNotificationRead(item.id, item.isRead)
+          setNotifications((prev) =>
+            prev.map((noti) =>
+              noti.id === item.id ? { ...noti, isRead: !noti.isRead } : noti
+            )
+          )
+          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
+        } catch (err) {
+          console.error('Error toggling read status', err)
+        }
       }}
     >
       <Image
@@ -377,7 +408,7 @@ const Notifications = () => {
                   color="#ccc"
                 />
                 <Text style={{ fontSize: 16, color: '#999', marginTop: 10 }}>
-                  Không có thông báo
+                  No notifications for you
                 </Text>
               </View>
             )}

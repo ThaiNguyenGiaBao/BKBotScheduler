@@ -42,3 +42,15 @@ export async function getNotifications(): Promise<
     throw error
   }
 }
+
+export async function toggleNotificationRead(
+  id: string,
+  isRead: boolean
+): Promise<void> {
+  try {
+    await api.patch(`/notifications/${id}`, { isRead: !isRead })
+  } catch (error) {
+    console.error(`Failed to toggle read status for notification ${id}:`, error)
+    throw error
+  }
+}
