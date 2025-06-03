@@ -78,5 +78,8 @@
     "tailwindcss": "^3.4.17",
     "typescript": "^5.3.3"
   },
-  "private": true
+  "private": true,
+  "optionalDependencies": {
+    "lightningcss-darwin-arm64": "^1.30.1"
+  }
 }
