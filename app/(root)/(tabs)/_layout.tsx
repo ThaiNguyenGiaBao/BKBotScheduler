@@ -20,6 +20,7 @@ const TabIcon = ({
         alignItems: "center",
         justifyContent: "center",
         gap: 2,
+        width: 40,
       }}
     >
       <Image
