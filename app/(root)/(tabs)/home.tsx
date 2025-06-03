@@ -1,4 +1,4 @@
-import React from 'react'
+import React from "react";
 import {
   Text,
   View,
@@ -6,10 +6,12 @@ import {
   ScrollView,
   SafeAreaView,
   TouchableOpacity,
-} from 'react-native'
-import Carousel from '@/component/carousel'
-import icons from '@/constants/icons'
-import images from '@/constants/images'
+  Button,
+} from "react-native";
+import Carousel from "@/component/carousel";
+import icons from "@/constants/icons";
+import images from "@/constants/images";
+import * as Sentry from "@sentry/react-native";
 
 const TaskItem = ({ title, time }: { title: string; time: string }) => (
   <View className="bg-white shadow-sm rounded-xl p-4 mb-3 flex-row justify-between items-center">
@@ -21,7 +23,7 @@ const TaskItem = ({ title, time }: { title: string; time: string }) => (
     </View>
     <Image source={icons.person} style={{ width: 24, height: 24 }} />
   </View>
-)
+);
 
 export default function Home() {
   return (
@@ -81,6 +83,19 @@ export default function Home() {
             </View>
           </View>
         </View>
+        <Button
+          title="Try!"
+          onPress={() => {
+            console.log("Try!");
+
+            try {
+              throw new Error("First error");
+            } catch (error) {
+              console.log("Error!", error);
+              Sentry.captureException(error);
+            }
+          }}
+        />
 
         {/* Tasks */}
         <Text className="font-bold text-xl mb-4 text-center">Nhiệm vụ</Text>
@@ -92,5 +107,5 @@ export default function Home() {
         <TaskItem title="Kiến tập tại VNG" time="5 ngày nữa, 6:45am" />
       </ScrollView>
     </SafeAreaView>
-  )
+  );
 }

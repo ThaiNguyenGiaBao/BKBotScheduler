@@ -25,6 +25,7 @@
     "@react-native-community/datetimepicker": "^8.4.1",
     "@react-navigation/bottom-tabs": "^7.2.0",
     "@react-navigation/native": "^7.0.14",
+    "@sentry/react-native": "^6.14.0",
     "appwrite": "^17.0.0",
     "axios": "^1.9.0",
     "babel-preset-expo": "^12.0.6",
