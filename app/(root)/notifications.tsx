@@ -1,150 +1,239 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import {
   View,
   Text,
   ScrollView,
   TouchableOpacity,
   Image,
-  FlatList,
+  Modal,
+  TouchableWithoutFeedback,
 } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import { Ionicons } from '@expo/vector-icons'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
-import icons from '@/constants/icons'
+import { Ionicons } from '@expo/vector-icons'
+import Entypo from '@expo/vector-icons/Entypo'
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
+
 import TopBar from '@/component/topBar'
+import icons from '@/constants/icons'
+import { Notification } from '@/api/notification/types'
+import { getNotifications } from '@/api/notification/notification'
 
 dayjs.extend(relativeTime)
 
-// Mock data
-const notifications = [
-  {
-    id: '1',
-    title: 'CNPM - TN01',
-    content: 'Tạo Prototype Figma',
-    time: dayjs().subtract(7, 'minute').toISOString(),
-  },
-  {
-    id: '2',
-    title: 'PPL',
-    content: 'Làm BTL PPL 2',
-    time: dayjs().subtract(2, 'hour').toISOString(),
-  },
-  {
-    id: '3',
-    title: 'CNPM - TN01',
-    content: 'Đi học Lập Trình Mobile...',
-    time: dayjs().subtract(9, 'hour').toISOString(),
-  },
-  {
-    id: '4',
-    title: 'Sinh hoạt công dân',
-    content: 'Đăng ký môn học HK 243',
-    time: dayjs().subtract(3, 'day').toISOString(),
-  },
-  {
-    id: '5',
-    title: 'Mạng máy tính',
-    content: 'Họp nhóm BTL',
-    time: dayjs().subtract(20, 'day').toISOString(),
-  },
-]
-
-const filters = ['All', 'Today', 'This week', 'Previous months']
-
-const getFilteredNotifications = (filter: string) => {
-  const now = dayjs()
-  return notifications.filter((noti) => {
-    const date = dayjs(noti.time)
-
-    switch (filter) {
-      case 'Today':
-        return date.isSame(now, 'day')
-      case 'This week':
-        return date.isAfter(now.startOf('week')) && !date.isSame(now, 'day')
-      case 'Previous months':
-        return date.isBefore(now.startOf('week'))
-      default:
-        return true
-    }
-  })
-}
-
-const groupNotifications = (notis: typeof notifications) => {
-  const today = []
-  const thisWeek = []
-  const previousMonths = []
-
-  const now = dayjs()
-
-  for (const noti of notis) {
-    const date = dayjs(noti.time)
-    if (date.isSame(now, 'day')) {
-      today.push(noti)
-    } else if (date.isAfter(now.startOf('week'))) {
-      thisWeek.push(noti)
-    } else {
-      previousMonths.push(noti)
-    }
-  }
-
-  return { today, thisWeek, previousMonths }
-}
+const filters = ['All', 'Today', 'This week', 'Previous']
 
 const Notifications = () => {
   const [selectedFilter, setSelectedFilter] = useState('All')
+  const [notifications, setNotifications] = useState<Notification[]>([])
+  const [selectedNotification, setSelectedNotification] =
+    useState<Notification | null>(null)
+  const [modalVisible, setModalVisible] = useState(false)
 
-  const filtered = getFilteredNotifications(selectedFilter)
-  const grouped = groupNotifications(filtered)
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const data = await getNotifications()
+        const enriched = data.map((noti) => ({
+          ...noti,
+          createdAt: dayjs()
+            .subtract(Math.floor(Math.random() * 10), 'day')
+            .toISOString(), // Fake createdAt
+        }))
+        setNotifications(enriched)
+      } catch (error) {
+        console.error('Failed to load notifications', error)
+      }
+    }
+    fetchData()
+  }, [])
 
-  const renderNotiCard = (item: any) => (
-    <View
-      key={item.id}
+  const filterNotifications = () => {
+    const now = dayjs()
+    return notifications.filter((noti) => {
+      const date = dayjs(noti.createdAt)
+      switch (selectedFilter) {
+        case 'Today':
+          return date.isSame(now, 'day')
+        case 'This week':
+          return date.isAfter(now.startOf('week')) && !date.isSame(now, 'day')
+        case 'Previous':
+          return date.isBefore(now.startOf('week'))
+        default:
+          return true
+      }
+    })
+  }
+
+  const groupNotifications = () => {
+    const now = dayjs()
+    const today: Notification[] = []
+    const thisWeek: Notification[] = []
+    const previous: Notification[] = []
+
+    for (const noti of filterNotifications()) {
+      const date = dayjs(noti.createdAt)
+      if (date.isSame(now, 'day')) today.push(noti)
+      else if (date.isAfter(now.startOf('week'))) thisWeek.push(noti)
+      else previous.push(noti)
+    }
+
+    return { today, thisWeek, previous }
+  }
+
+  const grouped = groupNotifications()
+
+  const renderNotiCard = (item: Notification, index: number) => (
+    <TouchableOpacity
+      key={index}
       style={{
-        backgroundColor: item.id === '1' ? '#E5EEFF' : '#fff',
+        backgroundColor: item.isRead ? '#FFFFFF' : '#0061FF1A',
         borderWidth: 1,
-        borderColor: '#ccc',
+        borderColor: '#666876',
         borderRadius: 12,
         padding: 12,
         flexDirection: 'row',
         alignItems: 'center',
         marginBottom: 10,
       }}
+      onPress={() => {
+        setSelectedNotification(item)
+        setModalVisible(true)
+      }}
     >
       <Image
-        source={icons.person}
-        style={{ width: 40, height: 40, borderRadius: 20, marginRight: 10 }}
+        source={icons.chatbot}
+        style={{ width: 80, height: 80, borderRadius: 20, marginRight: 10 }}
       />
       <View style={{ flex: 1 }}>
-        <Text style={{ fontWeight: 'bold', color: '#0057FF' }}>
+        <Text
+          numberOfLines={1}
+          style={{ fontWeight: '700', color: '#0061FF', fontSize: 20 }}
+        >
           {item.title}
         </Text>
-        <Text>{item.content}</Text>
-        <View
-          style={{ flexDirection: 'row', alignItems: 'center', marginTop: 4 }}
-        >
-          <Ionicons name="time-outline" size={14} color="#888" />
-          <Text style={{ color: '#888', marginLeft: 4, fontSize: 12 }}>
-            {dayjs(item.time).fromNow()}
+        <Text numberOfLines={1} style={{ color: '#191D31', fontSize: 16 }}>
+          {item.body}
+        </Text>
+        <View style={{ flexDirection: 'row', marginTop: 4 }}>
+          <Entypo name="back-in-time" size={14} color="#666876" />
+          <Text style={{ color: '#666876', marginLeft: 4, fontSize: 12 }}>
+            {dayjs(item.createdAt).fromNow()}
           </Text>
         </View>
       </View>
-    </View>
+    </TouchableOpacity>
+  )
+
+  const renderModal = () => (
+    <Modal visible={modalVisible} transparent animationType="slide">
+      <TouchableWithoutFeedback onPress={() => setModalVisible(false)}>
+        <View
+          style={{
+            flex: 1,
+            justifyContent: 'center',
+            alignItems: 'center',
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          }}
+        >
+          <TouchableWithoutFeedback>
+            <View
+              style={{
+                backgroundColor: '#fff',
+                padding: 20,
+                borderRadius: 20,
+                width: '80%',
+                maxHeight: '80%',
+              }}
+            >
+              <TouchableOpacity
+                onPress={() => setModalVisible(false)}
+                style={{ position: 'absolute', top: 10, right: 10 }}
+              >
+                <MaterialCommunityIcons
+                  name="close-circle-outline"
+                  size={24}
+                  color="#666876"
+                />
+              </TouchableOpacity>
+              <Text
+                style={{
+                  fontSize: 24,
+                  fontWeight: 'bold',
+                  textAlign: 'center',
+                  marginBottom: 10,
+                }}
+              >
+                Notification
+              </Text>
+
+              <Image
+                source={icons.chatbot}
+                style={{ width: 120, height: 120, alignSelf: 'center' }}
+              />
+
+              <Text
+                style={{
+                  marginTop: 20,
+                  fontWeight: '600',
+                  textAlign: 'center',
+                }}
+              >
+                Group ID
+              </Text>
+              <Text
+                selectable
+                style={{ textAlign: 'center', marginBottom: 10 }}
+              >
+                {selectedNotification?.groupId || 'N/A'}
+              </Text>
+
+              <Text style={{ fontWeight: '600', textAlign: 'center' }}>
+                Content
+              </Text>
+              <Text
+                selectable
+                style={{ textAlign: 'center', marginBottom: 10 }}
+              >
+                {selectedNotification?.body || 'N/A'}
+              </Text>
+
+              <Text style={{ fontWeight: '600', textAlign: 'center' }}>
+                Time
+              </Text>
+              <Text style={{ textAlign: 'center' }}>
+                {selectedNotification?.createdAt
+                  ? dayjs(selectedNotification.createdAt).format(
+                      'HH:mm:ss - DD/MM/YYYY'
+                    )
+                  : 'N/A'}
+              </Text>
+            </View>
+          </TouchableWithoutFeedback>
+        </View>
+      </TouchableWithoutFeedback>
+    </Modal>
   )
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#F9F9F9' }}>
-      {/* Header */}
-      <TopBar title="Chatbot" />
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
+      <TopBar title="Notifications" />
       <ScrollView contentContainerStyle={{ padding: 20 }}>
-        {/* Filter Chips */}
-        <View style={{ flexDirection: 'row', gap: 10, marginBottom: 20 }}>
+        {/* Filter Buttons */}
+        <View
+          style={{
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            marginBottom: 20,
+          }}
+        >
           {filters.map((f) => (
             <TouchableOpacity
               key={f}
               onPress={() => setSelectedFilter(f)}
               style={{
-                backgroundColor: selectedFilter === f ? '#0057FF' : '#F1F1F1',
+                backgroundColor: selectedFilter === f ? '#0061FF' : '#0061FF0A',
                 paddingHorizontal: 14,
                 paddingVertical: 6,
                 borderRadius: 999,
@@ -152,7 +241,7 @@ const Notifications = () => {
             >
               <Text
                 style={{
-                  color: selectedFilter === f ? '#fff' : '#333',
+                  color: selectedFilter === f ? '#FFF' : '#191D31',
                   fontWeight: '500',
                 }}
               >
@@ -162,7 +251,7 @@ const Notifications = () => {
           ))}
         </View>
 
-        {/* Notifications Grouped */}
+        {/* Grouped Lists */}
         {grouped.today.length > 0 && (
           <>
             <Text
@@ -182,12 +271,12 @@ const Notifications = () => {
                 marginVertical: 10,
               }}
             >
-              This week
+              This Week
             </Text>
             {grouped.thisWeek.map(renderNotiCard)}
           </>
         )}
-        {grouped.previousMonths.length > 0 && (
+        {grouped.previous.length > 0 && (
           <>
             <Text
               style={{
@@ -196,12 +285,13 @@ const Notifications = () => {
                 marginVertical: 10,
               }}
             >
-              Previous months
+              Previous
             </Text>
-            {grouped.previousMonths.map(renderNotiCard)}
+            {grouped.previous.map(renderNotiCard)}
           </>
         )}
       </ScrollView>
+      {renderModal()}
     </SafeAreaView>
   )
 }
