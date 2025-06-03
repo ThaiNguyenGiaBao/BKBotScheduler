@@ -14,7 +14,6 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import GroupItem from "@/component/groupitem"; // your own component
 import images from "@/constants/images"; // your own asset map
-import FilterList from "@/component/filterList"; // your own filter component
 import TopBar from "@/component/topBar";
 
 import api from "@/api";
@@ -118,7 +117,6 @@ const Explore: React.FC = () => {
 
         <View className="mt-3" />
 
-        <FilterList />
 
         <View className="mt-5 space-y-3">
           {groups.map((g) => (

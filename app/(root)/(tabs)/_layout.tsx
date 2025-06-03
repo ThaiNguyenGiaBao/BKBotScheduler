@@ -78,16 +78,7 @@ const TabLayout = () => {
           ),
         }}
       />
-      <Tabs.Screen
-        name="group/index"
-        options={{
-          title: "Group",
-          headerShown: false,
-          tabBarIcon: ({ focused }) => (
-            <TabIcon focused={focused} icon={icons.search} title="Group" />
-          ),
-        }}
-      />
+
       <Tabs.Screen
         name="chat"
         options={{
@@ -99,6 +90,16 @@ const TabLayout = () => {
         }}
       />
 
+      <Tabs.Screen
+        name="group"
+        options={{
+          title: "Group",
+          headerShown: false,
+          tabBarIcon: ({ focused }) => (
+            <TabIcon focused={focused} icon={icons.search} title="Group" />
+          ),
+        }}
+      />
       <Tabs.Screen
         name="profile"
         options={{
