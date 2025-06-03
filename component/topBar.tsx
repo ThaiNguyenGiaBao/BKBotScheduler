@@ -8,6 +8,7 @@ interface TopBarProps {
   showBackButton?: boolean
   showNotiIcon?: boolean
   onBackPress?: () => void
+  rightIcon?: React.ReactNode
 }
 
 const TopBar: React.FC<TopBarProps> = ({
@@ -15,6 +16,7 @@ const TopBar: React.FC<TopBarProps> = ({
   showBackButton = true,
   showNotiIcon = true,
   onBackPress,
+  rightIcon = null,
 }) => {
   const router = useRouter()
 
@@ -36,7 +38,7 @@ const TopBar: React.FC<TopBarProps> = ({
             backgroundColor: '#0061FF1A',
             padding: 8,
             borderRadius: 999,
-            zIndex: 1, // Ensure button is above the title
+            zIndex: 1,
           }}
         >
           <Ionicons name="arrow-back" size={22} color="#191D31" />
@@ -59,7 +61,9 @@ const TopBar: React.FC<TopBarProps> = ({
         {title}
       </Text>
 
-      {showNotiIcon ? (
+      {rightIcon ? (
+        rightIcon
+      ) : showNotiIcon ? (
         <TouchableOpacity onPress={() => router.push('/(root)/notifications')}>
           <Ionicons name="notifications-outline" size={24} color="#4A4A4A" />
         </TouchableOpacity>
