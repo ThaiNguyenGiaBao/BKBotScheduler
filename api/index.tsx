@@ -6,8 +6,8 @@ const ACCESS_TOKEN_KEY = 'auth_access_token';
 const REFRESH_TOKEN_KEY = 'auth_refresh_token';
 
 // API base URL
-// const BASE_URL = "http://localhost:5000/api/v1/";
-const BASE_URL = "http://103.82.133.50:5000/api/v1/";
+const BASE_URL = "http://localhost:5000/api/v1/";
+// const BASE_URL = "http://103.82.133.50:5000/api/v1/";
 
 // Create axios instance
 const api: AxiosInstance = axios.create({

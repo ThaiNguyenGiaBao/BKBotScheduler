@@ -3,78 +3,92 @@ import * as WebBrowser from 'expo-web-browser';
 import * as AuthSession from 'expo-auth-session';
 import api, { tokenManager } from '@/api';
 
+// Ensure WebBrowser handles auth session redirects
 WebBrowser.maybeCompleteAuthSession();
 
+// Define Google's OAuth endpoints
 const discovery = {
   authorizationEndpoint: 'https://accounts.google.com/o/oauth2/v2/auth',
   tokenEndpoint: 'https://oauth2.googleapis.com/token',
 };
+
+// Use Expo's auth proxy or your custom domain
+const redirectUri = AuthSession.makeRedirectUri(); // Defaults to Expo proxy (e.g., https://auth.expo.io/@yourusername/your-app-slug)
 
 export function useGoogleAuth() {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
-  
+  // Log redirectUri for debugging
+  console.log('Generated redirectUri:', redirectUri);
+
+  // Configure the auth request
   const [request, response, promptAsync] = AuthSession.useAuthRequest(
     {
-      clientId: '650345872241-1n6chu3kniehpol4kkv3k86o0d8mj4r6.apps.googleusercontent.com',
+      clientId: '650345872241-1n6chu3kniehpol4kkv3k86o0d8mj4r6.apps.googleusercontent.com', // Replace with Web Client ID from Google Cloud Console
       scopes: ['openid', 'email', 'profile', 'https://www.googleapis.com/auth/calendar'],
-      redirectUri: AuthSession.makeRedirectUri({
-         useProxy: true,
-      }),
+      redirectUri,
       responseType: 'code',
       extraParams: {
         access_type: 'offline',
         prompt: 'consent',
-        // Remove hd parameter if not strictly needed, or ensure user is in the domain
-        // hd: 'hcmut.edu.vn',
+        hd: 'hcmut.edu.vn',
       },
     },
     discovery
   );
 
+  // Sign-in function
   const signIn = async () => {
+    if (!request) {
+      setError(new Error('Auth request not ready'));
+      return;
+    }
     setLoading(true);
     setError(null);
     try {
-      const res = await promptAsync();
-      if (res.type !== 'success') throw new Error('Login cancelled or failed');
+      const result = await promptAsync();
+      if (result.type !== 'success') {
+        throw new Error(`Login failed: ${result.type}`);
+      }
     } catch (err) {
-      setError(err as Error);
+      setError(err instanceof Error ? err : new Error('Unknown error during sign-in'));
       setLoading(false);
     }
   };
 
+  // Handle the response and exchange code for tokens
   useEffect(() => {
     const handleAuthCode = async () => {
       if (response?.type !== 'success') return;
       const { code } = response.params;
 
       try {
-        const redirectUri = AuthSession.makeRedirectUri({ useProxy: false });
+        console.log('Sending redirectUri to backend:', redirectUri);
 
-        // Send to your backend for token exchange
+        // Exchange code for tokens via backend
         const backendResponse = await api.post('/auth/google/mobile', {
           code,
-          code_verifier: request?.codeVerifier,
+          codeVerifier: request?.codeVerifier,
           redirect_uri: redirectUri,
         });
 
         const { access_token, refresh_token, user: userData } = backendResponse.data;
 
         await tokenManager.setTokens(access_token, refresh_token);
-        api.defaults.headers.common['Authorization'] = `Bearer ${access_token}`; // Fixed template literal syntax
+        api.defaults.headers.common['Authorization'] = `Bearer ${access_token}`;
         setUser(userData);
       } catch (err) {
-        setError(err as Error);
+        setError(err instanceof Error ? err : new Error('Token exchange failed'));
+        console.error('Token exchange error:', err);
       } finally {
         setLoading(false);
       }
     };
 
     handleAuthCode();
-  }, [response]);
+  }, [response, request, redirectUri]);
 
   return { signIn, loading, error, user };
 }
