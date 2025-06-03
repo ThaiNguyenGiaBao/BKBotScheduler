@@ -15,12 +15,13 @@ export function useGoogleAuth() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
+  
   const [request, response, promptAsync] = AuthSession.useAuthRequest(
     {
       clientId: '650345872241-1n6chu3kniehpol4kkv3k86o0d8mj4r6.apps.googleusercontent.com',
       scopes: ['openid', 'email', 'profile', 'https://www.googleapis.com/auth/calendar'],
       redirectUri: AuthSession.makeRedirectUri({
-        useProxy: false, // Use custom scheme instead of proxy
+         useProxy: true,
       }),
       responseType: 'code',
       extraParams: {
