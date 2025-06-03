@@ -89,7 +89,7 @@ const TopBar: React.FC<TopBarProps> = ({
                   position: 'absolute',
                   top: -2,
                   right: -2,
-                  backgroundColor: 'red',
+                  backgroundColor: '#FF0004',
                   borderRadius: 999,
                   paddingHorizontal: 4,
                   minWidth: 16,
