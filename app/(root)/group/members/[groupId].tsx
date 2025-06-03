@@ -128,11 +128,9 @@ const GroupSettings = ({}) => {
             <View className="flex-col items-center">
               <Text className="text-2xl font-rubik">{group.name}</Text>
               <Text style={styles.tasksRemaining}>
-                {tasksRemaining} tasks remaining
+                {memberList.length} members
               </Text>
-              <TouchableOpacity>
-                <Text style={styles.changeLink}>Change name or image</Text>
-              </TouchableOpacity>
+              
             </View>
           </View>
 

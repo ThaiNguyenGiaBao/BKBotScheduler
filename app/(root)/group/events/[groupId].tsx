@@ -166,7 +166,7 @@ export default function GroupDetail() {
             <Text className=" text-gray-600">
               {group.description || "Group description goes here."}
             </Text>
-            <Text className=" text-gray-600">3 tasks remaining</Text>
+            <Text className=" text-gray-600">{tasks.length} tasks remaining</Text>
           </View>
 
           {/* Settings icon (no-op) */}
