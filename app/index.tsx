@@ -13,6 +13,7 @@ import images from '@/constants/images'
 import icons from '@/constants/icons'
 import { router, Router } from 'expo-router'
 import AsyncStorage from '@react-native-async-storage/async-storage'
+import { useGoogleAuth } from '@/utils/googleAuth';
 
 const { width } = Dimensions.get('window')
 
@@ -55,17 +56,37 @@ const Onboarding = ({}) => {
   const [currentPage, setCurrentPage] = useState(0)
   const [isOnboardingVisible, setIsOnboardingVisible] = useState(true)
 
+  const { signIn, loading, error, user } = useGoogleAuth();
+
   useEffect(() => {
     const checkOnboardingStatus = async () => {
       const hasSeenOnboarding = await AsyncStorage.getItem('hasSeenOnboarding')
       if (hasSeenOnboarding) {
-        setIsOnboardingVisible(false)
-        router.replace('/(root)/(tabs)/home') // Navigate to home
+        // setIsOnboardingVisible(false)
+        setCurrentPage(3) // Set to last page if already seen
+        // Need to wait for the component to render before scrolling
+        setTimeout(() => {
+          scrollRef.current?.scrollTo({
+            x: 3 * width,
+            animated: false,
+          });
+        }, 100);
+        // router.replace('/(root)/(tabs)/home') // Navigate to home
       }
     }
     checkOnboardingStatus()
   }, [])
 
+  useEffect(() => {
+    if (user) {
+      // Save onboarding completion
+      AsyncStorage.setItem('hasSeenOnboarding', 'true');
+      // Navigate to home screen
+      router.replace('/(root)/(tabs)/home');
+    }
+  }, [user]);
+
+  
   const handleScroll = (e:any) => {
     const page = Math.round(e.nativeEvent.contentOffset.x / width)
     setCurrentPage(page)
@@ -133,18 +154,28 @@ const Onboarding = ({}) => {
               )}
 
               {page.showGoogleSignIn && (
-                <TouchableOpacity className="shadow-md rounded-3xl bg-white p-3 mt-6 w-5/6">
-                  <View className="flex-row items-center justify-center">
-                    <Image
-                      source={icons.google}
-                      style={{ width: 20, height: 20 }}
-                    />
-                    <Text className="font-rubik-medium ml-2 text-lg">
-                      Sign in with Google
-                    </Text>
-                  </View>
+                <TouchableOpacity 
+                    className="shadow-md rounded-3xl bg-white p-3 mt-6 w-5/6"
+                    onPress={signIn}
+                    disabled={loading}
+                  >
+                    <View className="flex-row items-center justify-center">
+                      <Image
+                        source={icons.google}
+                        style={{ width: 20, height: 20 }}
+                      />
+                      <Text className="font-rubik-medium ml-2 text-lg">
+                        {loading ? "Signing in..." : "Sign in with Google"}
+                      </Text>
+                    </View>
                 </TouchableOpacity>
               )}
+
+              {currentPage === PAGES.length - 1 && error && (
+              <Text className="text-red-500 mt-2 text-center">
+                {typeof error === 'string' ? error : 'Sign in failed'}
+              </Text>
+              )}  
             </View>
           </View>
         ))}

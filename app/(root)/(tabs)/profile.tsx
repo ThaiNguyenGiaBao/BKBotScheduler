@@ -1,12 +1,42 @@
 // app/(root)/(tabs)/profile.tsx
-import React from 'react'
-import { View, Text, Image, TouchableOpacity, ScrollView } from 'react-native'
+import React, { useState } from 'react'
+import { View, Text, Image, TouchableOpacity, ScrollView, Alert } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import images from '@/constants/images'
 import { Ionicons } from '@expo/vector-icons'
 import TopBar from '@/component/topBar'
+import { tokenManager } from '@/api'
+import { router } from 'expo-router'
+import * as WebBrowser from 'expo-web-browser'
 
 const Profile = () => {
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
+
+  const handleLogout = async () => {
+    console.log("Logout button pressed");
+    setShowLogoutModal(true);
+  };
+
+  const confirmLogout = async () => {
+    try {
+      // Clear tokens from storage
+      await tokenManager.clearTokens();
+      
+      // Optional: Revoke Google session
+      // await WebBrowser.openAuthSessionAsync(
+      //   'https://accounts.google.com/logout',
+      //   'about:blank'
+      // );
+      
+      // Navigate to root/onboarding
+      router.replace("/");
+    } catch (error) {
+      console.error("Logout error:", error);
+    } finally {
+      setShowLogoutModal(false);
+    }
+  };
+  
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
       <TopBar title="Profile" />
@@ -72,6 +102,7 @@ const Profile = () => {
               borderRadius: 30,
               alignItems: 'center',
             }}
+            onPress={confirmLogout}
           >
             <Text style={{ color: 'red', fontWeight: 'bold' }}>Log out</Text>
           </TouchableOpacity>
