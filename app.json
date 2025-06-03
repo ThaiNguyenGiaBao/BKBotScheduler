@@ -30,7 +30,7 @@
       [
         "expo-notifications",
         {
-          "icon": "./assets/images/icon.png",
+          "icon": "./assets/images/noti-icon.png",
           "color": "#0061FF"
         }
       ],
@@ -84,8 +84,8 @@
       "url": "https://u.expo.dev/231ddddb-1897-4b1c-9c0f-dbe2ad9bacc9"
     },
     "notification": {
-      "icon": "./assets/images/icon.png",
-      "color": "#0061FF"
+      "icon": "./assets/images/noti-icon.png",
+      "color": "#FF6347"
     }
   }
 }

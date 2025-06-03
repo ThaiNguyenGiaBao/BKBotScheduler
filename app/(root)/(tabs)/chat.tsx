@@ -504,7 +504,9 @@ const ChatScreen = () => {
             style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}
           >
             <ActivityIndicator size="large" color="#0061FF" />
-            <Text style={{ marginTop: 12, color: '#888' }}>Đang tải...</Text>
+            <Text style={{ marginTop: 12, color: '#888' }}>
+              Loading chatbot...
+            </Text>
           </View>
         ) : messages.length === 0 ? (
           <View

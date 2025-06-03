@@ -47,9 +47,6 @@ class NotificationService {
       return
     }
 
-    // Check immediately on start
-    await this.checkForNewNotifications()
-
     // Set up polling interval
     this.pollingInterval = setInterval(async () => {
       await this.checkForNewNotifications()

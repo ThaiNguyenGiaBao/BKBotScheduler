@@ -25,14 +25,10 @@ export function setupNotificationListeners() {
       console.log('👆 User tapped notification:', response)
 
       const data = response.notification.request.content.data
-      console.log(data)
       // Navigate based on notification data
       if (data?.groupId) {
         const groupId = data.groupId
         console.log('🚀 Navigating to group:', groupId)
-
-        // Navigate to group screen
-        // router.push('/(root)/notifications')
         router.push(`/(root)/(tabs)/group/${groupId}`)
       } else {
         // Navigate to notifications screen if no specific group
