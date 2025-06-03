@@ -9,33 +9,35 @@ const MemberItem = ({
 }: {
   member: {
     id: string;
+    email: string;
     name: string;
-    isOwner: boolean;
   };
 }) => {
   const handleRemoveMember = (memberId: string) => {
     // Logic to remove member
     console.log(`Removing member with ID: ${memberId}`);
   };
+
+  const shorten = (text: string, maxLength: number = 30) => {
+    return text.length > maxLength ? text.slice(0, maxLength) + "..." : text;
+  };
+
   return (
-    <View key={member.id} style={styles.memberRow}>
+    <View
+      key={member.id}
+      style={styles.memberRow}
+      className="rounded-lg border border-gray-300 p-3 mb-3 flex-row items-center"
+    >
       <Image
         source={images.avatar} // Replace with member avatar
         style={styles.memberAvatar}
       />
       <View style={styles.memberInfo}>
-        <Text style={styles.memberName}>{member.name}</Text>
-        {member.isOwner ? (
-          <Text style={styles.ownerText}>Group owner</Text>
-        ) : (
-          <Text style={styles.ownerText}>Member</Text>
-        )}
+        <Text style={styles.memberName} className="font-rubik-semibold">{shorten(member.name)}</Text>
+        <Text style={styles.memberName} className="text-gray-700">
+          {shorten(member.email)}
+        </Text>
       </View>
-      {!member.isOwner && (
-        <TouchableOpacity onPress={() => handleRemoveMember(member.id)}>
-          <Icon name="delete" size={20} color="#FF4444" />
-        </TouchableOpacity>
-      )}
     </View>
   );
 };
@@ -64,6 +66,7 @@ const styles = StyleSheet.create({
     padding: 12,
     borderRadius: 20,
     marginBottom: 24,
+
   },
   addButtonText: { fontSize: 16, color: "#007AFF", marginRight: 8 },
   bottomNav: {

@@ -1,58 +1,109 @@
-import React from "react";
-import { View, Text, TouchableOpacity, Image, StyleSheet } from "react-native";
+import React, { useState, useEffect } from "react";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  Image,
+  StyleSheet,
+  Modal,
+  TextInput,
+  KeyboardAvoidingView,
+  Platform,
+} from "react-native";
 import Icon from "react-native-vector-icons/MaterialIcons"; // For trash and other icons
 import { SafeAreaView, ScrollView } from "react-native";
 import TopBar from "@/component/topBar"; // Assuming you have a TopBar component
 import { useRouter } from "expo-router";
 import images from "@/constants/images";
 import MemberItem from "@/component/memberItem";
+import { useLocalSearchParams } from "expo-router";
+import api from "@/api"; // Assuming you have an API module for fetching data
 
 interface Member {
   id: string;
-  name: string;
   email: string;
-  isOwner: boolean;
+  name: string;
 }
 
-interface GroupSettingsProps {
-  groupId: string;
-  groupName: string;
-  tasksRemaining: number;
-  members: Member[];
-  onRemoveMember: (memberId: string) => void;
-  onAddMember: () => void;
-}
-
-const GroupSettings = ({
-  groupId,
-  groupName = "CNPM - TN01",
-  tasksRemaining = 2,
-  members = [
+const GroupSettings = ({}) => {
+  const [group, setGroup] = useState({
+    id: "1",
+    name: "CNPM",
+    numMember: 3,
+    description: "Group for CNPM course discussions",
+  });
+  const { groupId } = useLocalSearchParams<{ groupId: string }>();
+  const tasksRemaining = 2;
+  const [memberList, setMemberList] = useState<Member[]>([
     {
       id: "1",
-      name: "tuan.nguyen123@hcmu...",
       email: "tuan.nguyen123@hcmu.edu.vn",
-      isOwner: false,
+      name: "Tuan Nguyen",
     },
     {
       id: "2",
-      name: "hongphucle@gmail.com",
       email: "hongphucle@gmail.com",
-      isOwner: true,
+      name: "Hong Phuc Le",
     },
-  ],
-  onRemoveMember = () => {},
-  onAddMember = () => {},
-}: GroupSettingsProps) => {
+  ]);
   const router = useRouter();
-  const handleRemoveMember = (memberId: string) => {
-    onRemoveMember(memberId);
+  const handleRemoveMember = (memberId: string) => {};
+
+  const [err, setErr] = useState("");
+
+  const handleAddMember = async () => {
+    if (!newMemberEmail.trim()) {
+      setErr("Please enter a valid email address.");
+      return;
+    }
+    
+    //navigation.navigate("AddMember"); // Navigate to add member screen
+    try {
+      console.log("groupId:", groupId);
+      const response = await api.post("/groups/" + groupId + "/members", {
+        email: newMemberEmail,
+      });
+      console.log("Member added successfully:", response.data);
+
+      setModalVisible(false); // Close the modal after adding
+      console.log("Added new member:", newMemberEmail);
+
+      setMemberList((prevMembers) => [
+      ...prevMembers,
+      {
+        id: Math.random().toString(), 
+        name: response.data.name || "New Member", // Use response data if available
+        email: response.data.email || newMemberEmail, // Use response data if available
+        isOwner: false, // Default to non-owner
+      },
+    ]);
+    } catch (error: any) {
+      console.log("Failed to add member:", error);
+      setErr(error.response.data.message|| "Failed to add member");
+
+      // Optionally, you can show an alert or toast message here
+    }
+
+    setNewMemberEmail(""); // Clear the input field
   };
 
-  const handleAddMember = () => {
-    onAddMember();
-    //navigation.navigate("AddMember"); // Navigate to add member screen
-  };
+  const [modalVisible, setModalVisible] = useState(false);
+  const [newMemberEmail, setNewMemberEmail] = useState("");
+
+  useEffect(() => {
+    const fetchGroups = async () => {
+      try {
+        const response = await api.get("/groups/" + groupId); // Adjust endpoint as needed
+        setGroup(response.data || []);
+        console.log("Fetched group:", response.data);
+        setMemberList(response.data.users || []);
+      } catch (error) {
+        console.log("Failed to fetch group:", error);
+      }
+    };
+
+    fetchGroups();
+  }, []);
 
   return (
     <SafeAreaView className="flex-1 bg-white p-5">
@@ -74,8 +125,8 @@ const GroupSettings = ({
               source={images.onboarding1} // Replace with actual avatar URL
               style={styles.avatar}
             />
-            <View>
-              <Text style={styles.groupName}>{groupName}</Text>
+            <View className="flex-col items-center">
+              <Text className="text-2xl font-rubik">{group.name}</Text>
               <Text style={styles.tasksRemaining}>
                 {tasksRemaining} tasks remaining
               </Text>
@@ -88,21 +139,77 @@ const GroupSettings = ({
           {/* Members Section */}
           <View className="mb-6 font-rubik-semibold text-lg">
             <Text style={styles.sectionTitle}>Members</Text>
-            {members.map((member) => (
-                <MemberItem
-                    key={member.id}
-                    member={member}
-                />
+            {memberList.map((member) => (
+              <MemberItem key={member.id} member={member} />
             ))}
           </View>
 
           {/* Add Member Button */}
-          <TouchableOpacity style={styles.addButton} onPress={handleAddMember}>
+          <TouchableOpacity
+            style={styles.addButton}
+            onPress={() => setModalVisible(true)}
+          >
             <Text style={styles.addButtonText}>Add new member</Text>
             <Icon name="person-add" size={20} color="#007AFF" />
           </TouchableOpacity>
         </View>
       </ScrollView>
+
+      <Modal
+        transparent
+        visible={modalVisible}
+        onRequestClose={() => {
+          setModalVisible(false);
+        }}
+      >
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          className="flex-1 justify-center items-center bg-black/30"
+        >
+          <View className="bg-white w-11/12 mx-2 rounded-2xl p-5">
+            <View className="flex-row mb-4">
+              <Text className="text-center text-2xl font-rubik-bold flex-1">
+                Add New Member
+              </Text>
+              <TouchableOpacity onPress={() => setModalVisible(false)}>
+                <Text className="text-xl font-bold text-red-600">&times;</Text>
+              </TouchableOpacity>
+            </View>
+
+            {/* Title */}
+
+            {/* Placeholder image (replace with your own or let user upload) */}
+            <View className="items-center mb-4">
+              <Image
+                resizeMode="contain"
+                source={images.onboarding2 /* your illustration asset */}
+                style={{ width: 300, height: 250 }}
+              />
+            </View>
+
+            {/* Input: Group Name */}
+            <TextInput
+              placeholder="New Member Email"
+              keyboardType="email-address"
+              autoCapitalize="none"
+              value={newMemberEmail}
+              onChangeText={(value: any) => setNewMemberEmail(value)}
+              className="border border-gray-300 rounded-lg px-3 py-2 mb-3"
+            />
+            <Text className="text-red-500 mb-2">{err}</Text>
+
+            {/* Save Button */}
+            <TouchableOpacity
+              className="bg-blue-500 rounded-full py-3 items-center"
+              onPress={handleAddMember}
+            >
+              <Text className="text-white font-rubik-medium text-base">
+                Save
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </KeyboardAvoidingView>
+      </Modal>
     </SafeAreaView>
   );
 };
@@ -113,7 +220,6 @@ const styles = StyleSheet.create({
   title: { fontSize: 20, fontWeight: "bold", flex: 1, textAlign: "center" },
   groupInfo: { flexDirection: "row", alignItems: "center", marginBottom: 24 },
   avatar: { width: 200, height: 200, borderRadius: 100, marginRight: 16 },
-  groupName: { fontSize: 18, fontWeight: "bold" },
   tasksRemaining: { fontSize: 14, color: "#666" },
   changeLink: { fontSize: 14, color: "#007AFF", marginTop: 4 },
   membersSection: { marginBottom: 24 },

@@ -17,7 +17,6 @@ const EventItem = ({
   };
   formatTime: (time: string) => string;
   setTasks: React.Dispatch<React.SetStateAction<any[]>>;
-  
 }) => {
   const handleDelete = async () => {
     try {
@@ -35,7 +34,7 @@ const EventItem = ({
   return (
     <View
       key={task.id}
-      className="flex-row items-center justify-between border border-gray-300 rounded-lg px-4 py-3 mb-3"
+      className="flex-row items-center justify-between border border-gray-300 rounded-lg px-3 py-3 mb-3"
     >
       <View>
         <Text className="text-base text-gray-800 flex-1">
