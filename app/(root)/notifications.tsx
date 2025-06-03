@@ -109,18 +109,17 @@ const Notifications = () => {
       }}
       onPress={async () => {
         try {
-          // Open modal
-          setSelectedNotification(item)
-          setModalVisible(true)
-
           // Toggle read status
-          await toggleNotificationRead(item.id, true)
+          await toggleNotificationRead(item.id, false)
           setNotifications((prev) =>
             prev.map((noti) =>
               noti.id === item.id ? { ...noti, isRead: !noti.isRead } : noti
             )
           )
           Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
+          // Open modal
+          setSelectedNotification(item)
+          setModalVisible(true)
         } catch (err) {
           console.error('Error toggling read status on press', err)
         }

@@ -15,7 +15,11 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "permissions": [
+        "android.permission.RECEIVE_BOOT_COMPLETED",
+        "android.permission.VIBRATE"
+      ]
     },
     "web": {
       "bundler": "metro",
@@ -23,6 +27,13 @@
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/images/icon.png",
+          "color": "#0061FF"
+        }
+      ],
       "expo-router",
       [
         "expo-splash-screen",
@@ -71,6 +82,10 @@
     },
     "updates": {
       "url": "https://u.expo.dev/231ddddb-1897-4b1c-9c0f-dbe2ad9bacc9"
+    },
+    "notification": {
+      "icon": "./assets/images/icon.png",
+      "color": "#0061FF"
     }
   }
 }
