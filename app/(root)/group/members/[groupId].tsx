@@ -107,18 +107,17 @@ const GroupSettings = ({}) => {
 
   return (
     <SafeAreaView className="flex-1 bg-white p-5">
+       <TopBar
+          title="Group Details"
+          
+        />
       <ScrollView
         className="p-3"
         showsVerticalScrollIndicator={false}
         showsHorizontalScrollIndicator={false}
       >
         {/* ─────────────────────────── Header ─────────────────────────── */}
-        <TopBar
-          title="Group Details"
-          showBackButton={true}
-          onBackPress={() => router.back()}
-          showNotiIcon={false}
-        />
+       
         <View style={styles.container}>
           <View className="flex-col items-center justify-center mb-6">
             <Image
