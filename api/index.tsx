@@ -3,7 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Token storage keys
 const ACCESS_TOKEN_KEY = 'auth_access_token';
-const REFRESH_TOKEN_KEY = 'auth_refresh_token';
+const REFRESH_TOKEN_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI5YTExNjM2Zi0xZGFhLTQ1MzEtYjdiYi1kZGRlMDQ2MmU1NDUiLCJlbWFpbCI6InZhbi5idWkyNDA1MDRAaGNtdXQuZWR1LnZuIiwiaWF0IjoxNzQ5MDE2ODcwLCJleHAiOjE3NDkxMDMyNzB9.oVVItNUg5ra5hGNPLSMqIH_fsRXFTx3MzYIYPoNY0QQ';
 
 // API base URL
 const BASE_URL = "http://localhost:5000/api/v1/";

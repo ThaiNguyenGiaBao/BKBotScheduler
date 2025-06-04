@@ -157,7 +157,7 @@ const Onboarding = ({}) => {
               {page.showGoogleSignIn && (
                 <TouchableOpacity 
                     className="shadow-md rounded-3xl bg-white p-3 mt-6 w-5/6"
-                    onPress={signIn}
+                    onPress={handleNext}
                     disabled={loading}
                   >
                     <View className="flex-row items-center justify-center">
