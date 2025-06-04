@@ -6,8 +6,8 @@ const ACCESS_TOKEN_KEY = 'auth_access_token';
 const REFRESH_TOKEN_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI5YTExNjM2Zi0xZGFhLTQ1MzEtYjdiYi1kZGRlMDQ2MmU1NDUiLCJlbWFpbCI6InZhbi5idWkyNDA1MDRAaGNtdXQuZWR1LnZuIiwiaWF0IjoxNzQ5MDE2ODcwLCJleHAiOjE3NDkxMDMyNzB9.oVVItNUg5ra5hGNPLSMqIH_fsRXFTx3MzYIYPoNY0QQ';
 
 // API base URL
-const BASE_URL = "http://localhost:5000/api/v1/";
-// const BASE_URL = "http://103.82.133.50:5000/api/v1/";
+// const BASE_URL = "http://localhost:5000/api/v1/";
+const BASE_URL = "http://103.82.133.50:5000/api/v1/";
 
 // Create axios instance
 const api: AxiosInstance = axios.create({

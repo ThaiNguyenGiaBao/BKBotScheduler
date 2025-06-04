@@ -18,10 +18,11 @@ export function useGoogleAuth() {
   const [error, setError] = useState<Error | null>(null);
 
   // Generate redirect URI
-  const redirectUri = AuthSession.makeRedirectUri({
-    scheme: 'myapp'
-  });
+  // const redirectUri = AuthSession.makeRedirectUri({
+  //   scheme: 'myapp'
+  // });
   
+  const redirectUri = "https://auth.expo.io/@nguyentuan/myapp";
 
   // Log redirectUri for debugging
   console.log('Generated redirectUri:', redirectUri);
