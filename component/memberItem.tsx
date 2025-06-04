@@ -1,7 +1,6 @@
 import { View, Text } from "react-native";
 import React from "react";
-import { TouchableOpacity, Image, StyleSheet } from "react-native";
-import Icon from "react-native-vector-icons/MaterialIcons"; // For trash and other icons
+import { Image, StyleSheet } from "react-native";
 import images from "@/constants/images";
 
 const MemberItem = ({
