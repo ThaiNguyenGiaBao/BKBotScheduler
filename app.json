@@ -27,8 +27,7 @@
           "autoVerify": true,
           "data": [
             {
-              "scheme": "myapp",
-              "host": "auth"
+              "scheme": "myapp"
             }
           ],
           "category": ["BROWSABLE", "DEFAULT"]
