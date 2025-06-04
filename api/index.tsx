@@ -3,11 +3,11 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Token storage keys
 const ACCESS_TOKEN_KEY = 'auth_access_token';
-const REFRESH_TOKEN_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI5YTExNjM2Zi0xZGFhLTQ1MzEtYjdiYi1kZGRlMDQ2MmU1NDUiLCJlbWFpbCI6InZhbi5idWkyNDA1MDRAaGNtdXQuZWR1LnZuIiwiaWF0IjoxNzQ5MDE4NzQ1LCJleHAiOjE3NTE2MTA3NDV9.W6hytq2toyNqBKCnOtqKlZ8c7gLMWTuBmRKsrLe5fe4';
+const REFRESH_TOKEN_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI5YTExNjM2Zi0xZGFhLTQ1MzEtYjdiYi1kZGRlMDQ2MmU1NDUiLCJlbWFpbCI6InZhbi5idWkyNDA1MDRAaGNtdXQuZWR1LnZuIiwiaWF0IjoxNzQ5MDE5MzQ3LCJleHAiOjE3NTE2MTEzNDd9.qEwabi-ZD0W7_cLfCnxPOExk4mWS4tBF5J2pWqXNjKU';
 
 // API base URL
 // const BASE_URL = "http://localhost:5000/api/v1/";
-const BASE_URL = "http://103.82.133.50:5000/api/v1/";
+const BASE_URL = "http://103.82.133.50:5000/api/v1";
 
 // Create axios instance
 const api: AxiosInstance = axios.create({
@@ -115,6 +115,7 @@ api.interceptors.response.use(
 
       try {
         // Get refresh token
+        await AsyncStorage.setItem(REFRESH_TOKEN_KEY, REFRESH_TOKEN_KEY);
         const refresh_token = await tokenManager.getrefresh_token();
         
         if (!refresh_token) {
@@ -122,8 +123,8 @@ api.interceptors.response.use(
         }
 
         // Call your refresh token endpoint
-        const response = await axios.post(`${BASE_URL}/auth/refresh_token`, {
-          refresh_token,
+        const response = await axios.post(`${BASE_URL}/auth/refreshToken`, {
+          refreshToken: refresh_token,
         });
 
         const { access_token, refresh_token: newrefresh_token } = response.data;
