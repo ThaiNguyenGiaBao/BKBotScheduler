@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "BKBotScheduler",
-    "slug": "BKBotScheduler",
+    "slug": "bkbotscheduler",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -20,7 +20,20 @@
         "android.permission.RECEIVE_BOOT_COMPLETED",
         "android.permission.VIBRATE"
       ],
-      "package": "com.myapp.authdemo"
+      "package": "com.myapp.authdemo",
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "autoVerify": true,
+          "data": [
+            {
+              "scheme": "myapp",
+              "host": "auth"
+            }
+          ],
+          "category": ["BROWSABLE", "DEFAULT"]
+        }
+      ]
     },
     "web": {
       "bundler": "metro",
@@ -65,7 +78,8 @@
           "project": "react-native",
           "organization": "le-hong-phuc"
         }
-      ]
+      ],
+      "expo-secure-store"
     ],
     "experiments": {
       "typedRoutes": true
@@ -75,18 +89,17 @@
         "origin": false
       },
       "eas": {
-        "projectId": "231ddddb-1897-4b1c-9c0f-dbe2ad9bacc9"
+        "projectId": "d151818d-14ef-4e46-a5a7-3946e9f5c3c2"
       }
     },
-    "runtimeVersion": {
-      "policy": "appVersion"
-    },
+    "runtimeVersion": "1.0.0",
     "updates": {
-      "url": "https://u.expo.dev/231ddddb-1897-4b1c-9c0f-dbe2ad9bacc9"
+      "url": "https://u.expo.dev/d151818d-14ef-4e46-a5a7-3946e9f5c3c2"
     },
     "notification": {
       "icon": "./assets/images/noti-icon.png",
       "color": "#FF6347"
-    }
+    },
+    "owner": "nguyenttuan"
   }
 }
