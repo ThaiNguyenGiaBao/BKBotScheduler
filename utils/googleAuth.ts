@@ -19,9 +19,9 @@ export function useGoogleAuth() {
 
   // Generate redirect URI
   const redirectUri = AuthSession.makeRedirectUri({
-    scheme: 'myapp',
-    path: 'redirect',
+    scheme: 'myapp'
   });
+  
 
   // Log redirectUri for debugging
   console.log('Generated redirectUri:', redirectUri);
