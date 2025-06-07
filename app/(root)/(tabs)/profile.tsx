@@ -15,6 +15,7 @@ import TopBar from '@/component/topBar'
 import api, { tokenManager } from '@/api'
 import { router } from 'expo-router'
 import * as WebBrowser from 'expo-web-browser'
+import ChatBotIcon from '@/component/chatbotIcon'
 
 interface UserData {
   id: string
@@ -275,6 +276,7 @@ const Profile = () => {
     <SafeAreaView className="flex-1 bg-white">
       <TopBar title="Profile" />
       {renderContent()}
+      <ChatBotIcon />
     </SafeAreaView>
   )
 }

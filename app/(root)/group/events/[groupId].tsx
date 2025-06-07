@@ -24,6 +24,7 @@ import { Group } from '@/types'
 import api from '@/api'
 import EventItem from '@/component/EventItem'
 import DatePicker from '@/component/dateTimePicker'
+import ChatBotIcon from '@/component/chatbotIcon'
 
 interface Event {
   id: string
@@ -333,6 +334,7 @@ export default function GroupDetail() {
           </View>
         </TouchableWithoutFeedback>
       </Modal>
+      <ChatBotIcon />
     </SafeAreaView>
   )
 }

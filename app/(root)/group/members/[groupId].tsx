@@ -22,6 +22,7 @@ import TopBar from '@/component/topBar'
 import images from '@/constants/images'
 import api from '@/api'
 import MemberItem from '@/component/memberItem'
+import ChatBotIcon from '@/component/chatbotIcon'
 
 interface Member {
   id: string
@@ -161,7 +162,10 @@ export default function GroupMembers() {
   return (
     <SafeAreaView style={styles.safeArea}>
       <TopBar title="Group Members" />
-      <ScrollView contentContainerStyle={{ padding: 16 }}>
+      <ScrollView
+        style={{ marginBottom: 20 }}
+        contentContainerStyle={{ padding: 16 }}
+      >
         {renderGroupHeader()}
 
         <Text style={styles.membersTitle}>Members</Text>
@@ -276,6 +280,7 @@ export default function GroupMembers() {
           </View>
         </TouchableWithoutFeedback>
       </Modal>
+      <ChatBotIcon />
     </SafeAreaView>
   )
 }
@@ -369,7 +374,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#D6E4FF',
     padding: 12,
     borderRadius: 24,
-    marginTop: 24,
+    marginTop: 32,
   },
   addButtonText: {
     color: '#0061FF',

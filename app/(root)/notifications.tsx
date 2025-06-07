@@ -25,6 +25,8 @@ import {
   toggleNotificationRead,
 } from '@/api/notification/notification'
 import * as Haptics from 'expo-haptics'
+import ChatBotIcon from '@/component/chatbotIcon'
+import { RefreshControl } from 'react-native-gesture-handler'
 
 dayjs.extend(relativeTime)
 
@@ -32,26 +34,45 @@ const filters = ['All', 'Today', 'This week', 'Previous']
 
 const Notifications = () => {
   const [isLoading, setIsLoading] = useState(true)
+  const [refreshing, setRefreshing] = useState(false)
   const [selectedFilter, setSelectedFilter] = useState('All')
   const [notifications, setNotifications] = useState<Notification[]>([])
   const [selectedNotification, setSelectedNotification] =
     useState<Notification | null>(null)
   const [modalVisible, setModalVisible] = useState(false)
 
+  const fetchNotifications = async () => {
+    try {
+      const data = await getNotifications()
+      setNotifications(data)
+    } catch (error) {
+      console.error('Failed to load notifications', error)
+    }
+  }
+
   useEffect(() => {
     const fetchData = async () => {
       try {
         setIsLoading(true)
-        const data = await getNotifications()
-        setNotifications(data)
-      } catch (error) {
-        console.error('Failed to load notifications', error)
+        await fetchNotifications()
       } finally {
         setIsLoading(false)
       }
     }
     fetchData()
   }, [])
+
+  const onRefresh = async () => {
+    setRefreshing(true)
+    try {
+      await fetchNotifications()
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
+    } catch (error) {
+      console.error('Failed to refresh notifications', error)
+    } finally {
+      setRefreshing(false)
+    }
+  }
 
   const filterNotifications = () => {
     const now = dayjs()
@@ -360,7 +381,12 @@ const Notifications = () => {
           </Text>
         </View>
       ) : (
-        <ScrollView contentContainerStyle={{ padding: 20 }}>
+        <ScrollView
+          contentContainerStyle={{ padding: 20 }}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }
+        >
           {/* Filter Buttons */}
           <View
             style={{
@@ -460,6 +486,7 @@ const Notifications = () => {
         </ScrollView>
       )}
       {renderModal()}
+      <ChatBotIcon />
     </SafeAreaView>
   )
 }

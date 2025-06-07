@@ -20,6 +20,7 @@ import TopBar from '@/component/topBar'
 import api from '@/api'
 import { Group } from '@/types'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
+import ChatBotIcon from '@/component/chatbotIcon'
 
 const Explore: React.FC = () => {
   const [groups, setGroups] = useState<Group[]>([])
@@ -237,6 +238,7 @@ const Explore: React.FC = () => {
           </View>
         </KeyboardAvoidingView>
       </Modal>
+      <ChatBotIcon />
     </SafeAreaView>
   )
 }
