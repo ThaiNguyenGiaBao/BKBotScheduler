@@ -243,7 +243,7 @@ const Profile = () => {
 
         {/* Logout Confirmation Modal */}
         {showLogoutModal && (
-          <View className="absolute inset-0 bg-black bg-opacity-50 justify-center items-center">
+          <View className="absolute inset-0 bg-opacity-50 justify-center items-center">
             <View className="bg-white mx-6 rounded-lg p-6">
               <Text className="text-lg font-semibold text-gray-800 mb-4">
                 Confirm Logout
