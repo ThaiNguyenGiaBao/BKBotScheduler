@@ -8,6 +8,7 @@ import {
   SafeAreaView,
   TouchableOpacity,
   Button,
+  ActivityIndicator,
 } from 'react-native'
 import Carousel from '@/component/carousel'
 import icons from '@/constants/icons'
@@ -16,6 +17,16 @@ import * as Sentry from '@sentry/react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { useRouter } from 'expo-router'
 import { getNotifications } from '@/api/notification/notification'
+import api from '@/api'
+
+interface UserData {
+  id: string
+  name: string
+  email: string
+  picture: string
+  given_name: string
+  family_name: string
+}
 
 const TaskItem = ({ title, time }: { title: string; time: string }) => (
   <View className="bg-white shadow-sm rounded-xl p-4 mb-3 flex-row justify-between items-center">
@@ -29,18 +40,71 @@ const TaskItem = ({ title, time }: { title: string; time: string }) => (
   </View>
 )
 
+// Skeleton loader for avatar
+const AvatarSkeleton = () => (
+  <View
+    style={{
+      width: 40,
+      height: 40,
+      borderRadius: 20,
+      backgroundColor: '#f0f0f0',
+    }}
+  />
+)
+
+// Skeleton loader for text
+const TextSkeleton = ({ width, height }: { width: number; height: number }) => (
+  <View
+    style={{
+      width,
+      height,
+      backgroundColor: '#f0f0f0',
+      borderRadius: 4,
+    }}
+  />
+)
+
 export default function Home() {
   const router = useRouter()
   const [unreadCount, setUnreadCount] = useState(0)
+  const [userData, setUserData] = useState<UserData | null>(null)
+  const [userLoading, setUserLoading] = useState(true)
+
+  // Get current time greeting
+  const getGreeting = () => {
+    const hour = new Date().getHours()
+    if (hour < 12) return 'Good morning'
+    if (hour < 17) return 'Good afternoon'
+    return 'Good evening'
+  }
+
+  // Fetch user data
+  const fetchUserData = async () => {
+    try {
+      setUserLoading(true)
+      const res = await api.get('/auth')
+      setUserData(res.data.user)
+    } catch (error) {
+      console.error('Failed to load user data in home', error)
+    } finally {
+      setUserLoading(false)
+    }
+  }
 
   useEffect(() => {
     let isMounted = true
+
+    // Fetch notifications
     getNotifications().then((notifications) => {
       if (isMounted) {
         const count = notifications.filter((n) => !n.isRead).length
         setUnreadCount(count)
       }
     })
+
+    // Fetch user data
+    fetchUserData()
+
     return () => {
       isMounted = false
     }
@@ -51,15 +115,27 @@ export default function Home() {
       {/* Header */}
       <View className="flex-row justify-between items-center mb-4 p-4 pb-0">
         <View className="flex-row items-center gap-2">
-          <Image
-            source={images.avatar}
-            style={{ width: 40, height: 40, borderRadius: 20 }}
-          />
+          {/* Avatar with loading state */}
+          {userLoading || !userData?.picture ? (
+            <AvatarSkeleton />
+          ) : (
+            <Image
+              source={{ uri: userData.picture }}
+              style={{ width: 40, height: 40, borderRadius: 20 }}
+            />
+          )}
+
           <View>
-            <Text className="text-gray-500 text-sm">Good morning</Text>
-            <Text className="font-bold text-base">PingPongBKD</Text>
+            <Text className="text-gray-500 text-sm">{getGreeting()}</Text>
+            {/* Username with loading state */}
+            {userLoading || !userData?.name ? (
+              <TextSkeleton width={120} height={18} />
+            ) : (
+              <Text className="font-bold text-base">{userData.name}</Text>
+            )}
           </View>
         </View>
+
         <TouchableOpacity onPress={() => router.push('/(root)/notifications')}>
           <View style={{ position: 'relative', padding: 4 }}>
             <Ionicons name="notifications-outline" size={24} color="#4A4A4A" />
@@ -88,6 +164,7 @@ export default function Home() {
           </View>
         </TouchableOpacity>
       </View>
+
       <ScrollView className="p-4" showsVerticalScrollIndicator={false}>
         {/* Banner */}
         <View className="flex justify-center justify-items-center">
@@ -129,6 +206,7 @@ export default function Home() {
             </View>
           </View>
         </View>
+
         {/* Tasks */}
         <Text className="font-bold text-xl mb-4 text-center">Nhiệm vụ</Text>
 

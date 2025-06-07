@@ -25,6 +25,7 @@ import {
   sendMessageToChatbot,
 } from '@/api/chatbot/chatbot'
 import icon from '@/assets/images/icon.png'
+import * as Clipboard from 'expo-clipboard'
 
 interface Message {
   id: string
@@ -333,12 +334,20 @@ const ChatScreen = () => {
   const renderMessage = ({ item }: { item: Message }) => {
     const isUser = item.sender === 'user'
     const isSelected = selectedMessageId === item.id
+    const handleCopy = () => {
+      Clipboard.setStringAsync(item.text)
+    }
 
     return (
       <View style={{ marginVertical: 6 }}>
         <TouchableOpacity
           onPress={() => handleMessagePress(item.id)}
+          onLongPress={handleCopy}
           activeOpacity={0.7}
+          style={{
+            flexDirection: isUser ? 'row-reverse' : 'row',
+            alignItems: 'center',
+          }}
         >
           <View
             style={{
@@ -347,12 +356,7 @@ const ChatScreen = () => {
             }}
           >
             {isUser ? (
-              <Ionicons
-                name="person-circle-outline"
-                size={50}
-                color="#000"
-                style={{ marginLeft: 8, marginRight: 4 }}
-              />
+              <Ionicons name="person-circle-outline" size={50} color="#000" />
             ) : (
               <Image
                 source={icons.chatbot}
@@ -374,13 +378,11 @@ const ChatScreen = () => {
                 borderRadius: 16,
                 borderTopRightRadius: isUser ? 0 : 16,
                 borderTopLeftRadius: isUser ? 16 : 0,
-                maxWidth: '75%',
+                width: '75%',
               }}
             >
               {isUser ? (
-                <Text selectable={true} style={{ color: '#fff', fontSize: 14 }}>
-                  {item.text}
-                </Text>
+                <Text style={{ color: '#fff', fontSize: 14 }}>{item.text}</Text>
               ) : (
                 <Markdown
                   style={{
