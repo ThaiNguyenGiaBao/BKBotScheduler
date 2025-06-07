@@ -41,12 +41,12 @@ const EventItem = ({
           {task.description}
         </Text>
         <Text className="text-sm text-gray-500 ">
-          {formatTime(task.startTime)} to {formatTime(task.endTime)}
+          From {formatTime(task.startTime)} to {formatTime(task.endTime)}
         </Text>
       </View>
 
       <TouchableOpacity className="ml-5 p-1" onPress={handleDelete}>
-        <Feather name="trash-2" size={20} color="#E02424" />
+        <Feather name="trash-2" size={20} color="#EA4335" />
       </TouchableOpacity>
 
       {/* Right: Date/Time */}

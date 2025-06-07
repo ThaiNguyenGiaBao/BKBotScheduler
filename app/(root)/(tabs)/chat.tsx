@@ -235,13 +235,13 @@ const ChatScreen = () => {
       const formattedMessages: Message[] = history.reverse().flatMap((item) => [
         {
           id: item.id + '_user',
-          text: item.text,
+          text: item.text ?? 'Không thể tải tin nhắn.',
           sender: 'user',
-          timestamp: new Date(item.createTime || Date.now()), // Assuming API returns createdAt
+          timestamp: new Date(item.createTime || Date.now()),
         },
         {
           id: item.id + '_bot',
-          text: item.response,
+          text: item.response ?? 'Vui lòng thử lại.',
           sender: 'bot',
           timestamp: new Date(item.createTime || Date.now()),
         },

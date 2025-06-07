@@ -1,11 +1,11 @@
-// File: app/group/[groupId].tsx
-
-import React, { useState, useEffect } from "react";
+// app/group/[groupId].tsx
+import React, { useState, useEffect } from 'react'
 import {
   View,
   Text,
   SafeAreaView,
   TouchableOpacity,
+  TouchableWithoutFeedback,
   Image,
   ScrollView,
   Modal,
@@ -13,295 +13,442 @@ import {
   KeyboardAvoidingView,
   Platform,
   StyleSheet,
-} from "react-native";
-import { useLocalSearchParams, useRouter } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
-import images from "@/constants/images";
-import TopBar from "@/component/topBar";
-import { Group } from "@/types";
-import api from "@/api";
-import EventItem from "@/component/EventItem";
-import DatePicker from "@/component/dateTimePicker";
+  ActivityIndicator,
+} from 'react-native'
+import { useLocalSearchParams, useRouter } from 'expo-router'
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons'
+import dayjs from 'dayjs'
+import images from '@/constants/images'
+import TopBar from '@/component/topBar'
+import { Group } from '@/types'
+import api from '@/api'
+import EventItem from '@/component/EventItem'
+import DatePicker from '@/component/dateTimePicker'
 
 interface Event {
-  id: string;
-  description: string;
-  startTime: string;
-  endTime: string;
+  id: string
+  description: string
+  startTime: string
+  endTime: string
 }
 
 export default function GroupDetail() {
-  const { groupId } = useLocalSearchParams<{ groupId: string }>();
-  const router = useRouter();
+  const { groupId } = useLocalSearchParams<{ groupId: string }>()
+  const router = useRouter()
 
-  const [modalVisible, setModalVisible] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false)
+  const [isLoadingGroup, setIsLoadingGroup] = useState(true)
+  const [isLoadingTasks, setIsLoadingTasks] = useState(true)
+  const [isPosting, setIsPosting] = useState(false)
 
-  const [group, setGroup] = useState<Group>({
-    id: "1",
-    name: "CNPM",
-    numMember: 3,
-    description: "Group for CNPM course discussions",
-  });
+  const [group, setGroup] = useState<Group | null>(null)
+  const [tasks, setTasks] = useState<Event[]>([])
 
   const [newEvent, setNewEvent] = useState<Event>({
-    id: "",
-    description: "",
-    startTime: new Date().toISOString(), // Default to current time
-    endTime: new Date(new Date().getTime() + 3600000).toISOString(), // Default to 1 hour later
-  });
+    id: '',
+    description: '',
+    startTime: '',
+    endTime: '',
+  })
 
-  // 2) In a real app, you would fetch group data based on groupId.
-  //    Here we mock up:
-  const avatarSrc = images.avatar; // placeholder avatar
-
-  const [tasks, setTasks] = useState<Event[]>([]);
+  const avatarSrc = images.avatar
 
   const handleEventChange = (field: keyof Event, value: string) => {
-    console.log(`Updating ${field} to:`, value);
-    setNewEvent((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
-  };
+    setNewEvent((prev) => ({ ...prev, [field]: value }))
+  }
 
   function formatTime(date: string): string {
-    //console.log("Formatting date:", date);
-    const dateObj = new Date(date);
-    if (isNaN(dateObj.getTime())) {
-      return "Invalid date";
-    }
-    const hours = dateObj.getHours().toString().padStart(2, "0");
-    const mins = dateObj.getMinutes().toString().padStart(2, "0");
-
-    const day = dateObj.getDate().toString().padStart(2, "0");
-    const month = (dateObj.getMonth() + 1).toString().padStart(2, "0");
-    return `${hours}:${mins} ${day}/${month}`;
+    const d = new Date(date)
+    if (isNaN(d.getTime())) return 'Invalid date'
+    const hh = d.getHours().toString().padStart(2, '0')
+    const mm = d.getMinutes().toString().padStart(2, '0')
+    const DD = d.getDate().toString().padStart(2, '0')
+    const MM = (d.getMonth() + 1).toString().padStart(2, '0')
+    const YY = d.getFullYear().toString().slice(-2)
+    return `${hh}:${mm}-${DD}/${MM}/${YY}`
   }
 
   const handleAddEvent = async () => {
-    if (!newEvent.description || !newEvent.startTime || !newEvent.endTime) {
-      console.log("Please fill in all fields.");
-      return;
-    }
+    if (!newEvent.description || isPosting) return
+
+    setIsPosting(true)
+
+    const now = new Date()
+    const oneHourLater = new Date(now.getTime() + 3600000)
+    const startTime = newEvent.startTime || now.toISOString()
+    const endTime = newEvent.endTime || oneHourLater.toISOString()
 
     try {
       const payload = {
         group_id: groupId,
         description: newEvent.description,
-        startTime: newEvent.startTime,
-        endTime: newEvent.endTime,
+        startTime,
+        endTime,
         isRecurring: false,
         isComplete: false,
-        type: "EVENT",
+        type: 'EVENT',
         priority: 1,
-        summary: "GROUP_EVENT",
-      };
-      console.log("Creating event with payload:", payload);
-      const response = await api.post("events/group", payload); // Adjust endpoint as needed
-
-      console.log("Event created successfully:", response.data);
-      setTasks((prev) => [...prev, response.data]);
-      setNewEvent({ id: "", description: "", startTime: "", endTime: "" });
-      setModalVisible(false);
-    } catch (error: any) {
-      console.error("Failed to create event:", error);
+        summary: 'GROUP_EVENT',
+      }
+      const response = await api.post('events/group', payload)
+      setTasks((prev) => [...prev, response.data])
+      setNewEvent({ id: '', description: '', startTime: '', endTime: '' })
+      setModalVisible(false)
+    } catch (error) {
+      console.error(error)
+    } finally {
+      setIsPosting(false)
     }
-  };
+  }
 
   useEffect(() => {
-    const fetchGroups = async () => {
+    if (!groupId) return
+
+    const fetchGroup = async () => {
+      setIsLoadingGroup(true)
       try {
-        const response = await api.get("/groups/" + groupId); // Adjust endpoint as needed
-        setGroup(response.data);
-        console.log("Fetched group:", response.data);
-      } catch (error) {
-        console.log("Failed to fetch group:", error);
+        const res = await api.get(`/groups/${groupId}`)
+        setGroup(res.data)
+      } catch {
+        setGroup(null)
+      } finally {
+        setIsLoadingGroup(false)
       }
-    };
+    }
 
-    fetchGroups();
-
-    // Fetch tasks for the group
     const fetchTasks = async () => {
+      setIsLoadingTasks(true)
       try {
-        const response = await api.get(`/events/group/${groupId}`); // Adjust endpoint as needed
-        setTasks(response.data.events || []);
-        console.log("Fetched tasks:", response.data.events);
-      } catch (error) {
-        console.log("Failed to fetch tasks:", error);
+        const res = await api.get(`/events/group/${groupId}`)
+        setTasks(res.data.events || [])
+      } catch {
+        setTasks([])
+      } finally {
+        setIsLoadingTasks(false)
       }
-    };
-    fetchTasks();
-  }, []);
+    }
+
+    fetchGroup()
+    fetchTasks()
+  }, [groupId])
+
+  const renderGroupHeader = () => {
+    if (isLoadingGroup) {
+      return (
+        <View
+          style={{ flexDirection: 'row', padding: 10, alignItems: 'center' }}
+        >
+          <View style={styles.skelAvatar} />
+          <View style={{ flex: 1, gap: 4 }}>
+            <View style={styles.skelLineShort} />
+            <View style={styles.skelLineLong} />
+            <View style={styles.skelLineTiny} />
+          </View>
+          <View style={styles.skelDot} />
+        </View>
+      )
+    }
+
+    if (!group) {
+      return (
+        <View
+          style={{ flexDirection: 'row', padding: 10, alignItems: 'center' }}
+        >
+          <View style={styles.skelAvatar} />
+          <View style={{ flex: 1 }}>
+            <Text style={styles.notFoundTitle}>Group not found</Text>
+            <Text style={styles.notFoundSub}>Unable to load group info</Text>
+          </View>
+        </View>
+      )
+    }
+
+    return (
+      <View style={{ flexDirection: 'row', padding: 10, alignItems: 'center' }}>
+        <Image source={avatarSrc} style={styles.avatar} />
+        <View style={{ flex: 1, gap: 4 }}>
+          <Text style={styles.groupName}>{group.name}</Text>
+          <Text style={styles.groupDesc}>{group.description}</Text>
+          <Text style={styles.groupTasks}>
+            {isLoadingTasks
+              ? 'Loading tasks...'
+              : `${tasks.length} tasks remaining`}
+          </Text>
+        </View>
+        <TouchableOpacity
+          style={{ padding: 8 }}
+          onPress={() =>
+            router.push({
+              pathname: '/group/members/[groupId]',
+              params: { groupId },
+            })
+          }
+        >
+          <Ionicons name="settings-outline" size={22} color="#1A1A1A" />
+        </TouchableOpacity>
+      </View>
+    )
+  }
+
+  const renderTasksContent = () => {
+    if (isLoadingTasks) {
+      return (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#3B82F6" />
+          <Text style={styles.loadingText}>Loading tasks...</Text>
+        </View>
+      )
+    }
+
+    if (tasks.length === 0) {
+      return (
+        <View style={styles.emptyContainer}>
+          <Image source={images.onboarding2} style={styles.emptyImage} />
+          <Text style={styles.emptyTitle}>No tasks yet</Text>
+          <Text style={styles.emptySub}>
+            Create your first event to get started with group activities
+          </Text>
+        </View>
+      )
+    }
+
+    return tasks.map((task) => (
+      <EventItem
+        key={task.id}
+        task={task}
+        formatTime={formatTime}
+        setTasks={setTasks}
+      />
+    ))
+  }
 
   return (
-    <SafeAreaView className="flex-1 bg-white p-5">
-      <TopBar
-          title="Group Details"
-          
-        />
-      <ScrollView
-        className="p-3"
-        showsVerticalScrollIndicator={false}
-        showsHorizontalScrollIndicator={false}
-      >
-        {/* ─────────────────────────── Header ─────────────────────────── */}
-        
+    <SafeAreaView style={styles.safeArea}>
+      <TopBar title="Group Details" />
+      <ScrollView contentContainerStyle={{ padding: 16 }}>
+        {renderGroupHeader()}
 
-        {/* ─────────────────────── Group Header Info ─────────────────────── */}
-        <View className="flex-row items-center  py-6" style={{ padding: 10 }}>
-          {/* Avatar */}
-          <Image
-            source={avatarSrc}
-            className="w-12 h-12 rounded-full mr-4"
-            resizeMode="cover"
-          />
+        {renderTasksContent()}
 
-          {/* Title + Subtitle */}
-          <View className="flex-1 gap-1">
-            <Text className="text-xl font-semibold text-gray-900">
-              {group.name || "Group Name"}
-            </Text>
-            <Text className=" text-gray-600">
-              {group.description || "Group description goes here."}
-            </Text>
-            <Text className=" text-gray-600">{tasks.length} tasks remaining</Text>
-          </View>
-
-          {/* Settings icon (no-op) */}
-          <TouchableOpacity
-            className="p-2"
-            onPress={() => {
-              router.push({
-                pathname: "/group/members/[groupId]",
-                params: { groupId },
-              });
-            }}
-          >
-            <Ionicons name="settings-outline" size={22} color="#1A1A1A" />
-          </TouchableOpacity>
-        </View>
-
-        {/* ─────────────────────── Task List ─────────────────────── */}
-        <ScrollView
-          className=""
-          contentContainerStyle={{ paddingBottom: 40 }}
-          showsVerticalScrollIndicator={false}
+        <TouchableOpacity
+          onPress={() => setModalVisible(true)}
+          style={styles.addButton}
         >
-          {tasks.map((task) => (
-            <EventItem
-              key={task.id}
-              task={task}
-              formatTime={formatTime}
-              setTasks={setTasks}
-            />
-          ))}
-
-          {/* ─────────────────────── Add New Event Button ─────────────────────── */}
-          <TouchableOpacity
-            onPress={() => setModalVisible(true)}
-            className="mt-4 mx-8 bg-blue-100 rounded-full py-3 items-center justify-center"
-          >
-            <Text className="text-blue-900 font-medium text-base">
-              Add new event
-            </Text>
-          </TouchableOpacity>
-        </ScrollView>
-
-        <Modal
-          transparent
-          visible={modalVisible}
-          onRequestClose={() => {
-            setModalVisible(false);
-          }}
-        >
-          <KeyboardAvoidingView
-            behavior={Platform.OS === "ios" ? "padding" : "height"}
-            className="flex-1 justify-center items-center bg-black/30 "
-          >
-            <View className="bg-white w-11/12 mx-2 rounded-2xl p-5">
-              <View className="flex-row mb-4">
-                <Text className="text-center text-2xl font-rubik-bold flex-1">
-                  Create Event
-                </Text>
-                <TouchableOpacity onPress={() => setModalVisible(false)}>
-                  <Text className="text-xl font-bold text-red-600">
-                    &times;
-                  </Text>
-                </TouchableOpacity>
-              </View>
-
-              {/* Title */}
-
-              {/* Placeholder image (replace with your own or let user upload) */}
-              <View className="items-center mb-4">
-                <Image
-                  resizeMode="contain"
-                  source={images.onboarding2 /* your illustration asset */}
-                  style={{ width: 300, height: 250 }}
-                />
-              </View>
-
-              {/* Input: Group Name */}
-              <View className="flex-row items-center  bg-white mt-2 gap-2">
-                <Text className="font-rubik text-xl my-auto">Title</Text>
-                <TextInput
-                  className="flex-1 border border-gray-300 rounded-lg px-3 py-2 mb-3"
-                  placeholder="Event Title"
-                  value={newEvent.description}
-                  onChangeText={(value) =>
-                    handleEventChange("description", value)
-                  }
-                />
-              </View>
-
-              <DatePicker
-                handleEventChange={handleEventChange}
-                event="startTime"
-                time={newEvent.startTime}
-              />
-              <DatePicker
-                handleEventChange={handleEventChange}
-                event="endTime"
-                time={newEvent.endTime}
-              />
-
-              {/* Save Button */}
-              <TouchableOpacity
-                className="bg-blue-500 rounded-full py-3 items-center mt-3"
-                onPress={handleAddEvent}
-              >
-                <Text className="text-white font-rubik-medium text-base">
-                  Save
-                </Text>
-              </TouchableOpacity>
-            </View>
-          </KeyboardAvoidingView>
-        </Modal>
+          <Text style={styles.addButtonText}>Add new event</Text>
+        </TouchableOpacity>
       </ScrollView>
+
+      {/* ─────────── Add New Event Modal ─────────── */}
+      <Modal visible={modalVisible} transparent animationType="slide">
+        <TouchableWithoutFeedback onPress={() => setModalVisible(false)}>
+          <View style={styles.modalOverlay}>
+            <TouchableWithoutFeedback>
+              <KeyboardAvoidingView
+                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+                style={{ flex: 1 }}
+              >
+                <ScrollView
+                  contentContainerStyle={styles.modalScrollContainer}
+                  keyboardShouldPersistTaps="handled"
+                  showsVerticalScrollIndicator={false}
+                  showsHorizontalScrollIndicator={false}
+                >
+                  <View style={styles.modalCard}>
+                    {/* Close */}
+                    <TouchableOpacity
+                      onPress={() => setModalVisible(false)}
+                      style={styles.modalClose}
+                    >
+                      <MaterialCommunityIcons
+                        name="close-circle-outline"
+                        size={28}
+                        color="#666876"
+                      />
+                    </TouchableOpacity>
+
+                    {/* Title */}
+                    <Text style={styles.modalTitle}>Add new event</Text>
+
+                    {/* Illustration */}
+                    <View style={styles.modalImageWrap}>
+                      <Image
+                        source={images.onboarding2}
+                        style={styles.modalImage}
+                        resizeMode="contain"
+                      />
+                    </View>
+
+                    {/* Event Title Input */}
+                    <View style={styles.fieldWrap}>
+                      <TextInput
+                        placeholder="Event Title"
+                        placeholderTextColor="#666"
+                        value={newEvent.description}
+                        onChangeText={(v) =>
+                          handleEventChange('description', v)
+                        }
+                        style={styles.fieldInput}
+                      />
+                    </View>
+
+                    {/* DatePickers */}
+                    <DatePicker
+                      handleEventChange={handleEventChange}
+                      event="startTime"
+                      time={newEvent.startTime}
+                    />
+                    <DatePicker
+                      handleEventChange={handleEventChange}
+                      event="endTime"
+                      time={newEvent.endTime}
+                    />
+
+                    <TouchableOpacity
+                      onPress={handleAddEvent}
+                      style={[
+                        styles.modalSubmit,
+                        !newEvent.description.trim() && {
+                          backgroundColor: '#ccc',
+                        },
+                      ]}
+                      disabled={!newEvent.description.trim() || isPosting}
+                    >
+                      {isPosting ? (
+                        <ActivityIndicator size="small" color="#0061FF" />
+                      ) : (
+                        <Text
+                          style={[
+                            styles.modalSubmitText,
+                            !newEvent.description.trim() && { color: '#999' },
+                          ]}
+                        >
+                          Add
+                        </Text>
+                      )}
+                    </TouchableOpacity>
+                  </View>
+                </ScrollView>
+              </KeyboardAvoidingView>
+            </TouchableWithoutFeedback>
+          </View>
+        </TouchableWithoutFeedback>
+      </Modal>
     </SafeAreaView>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
-  container: {
-    padding: 16,
+  safeArea: { flex: 1, backgroundColor: '#fff' },
+
+  skelAvatar: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: '#EEE',
+    marginRight: 12,
   },
-  label: {
-    fontSize: 16,
-    marginBottom: 8,
-    fontWeight: "500",
+  skelLineShort: {
+    width: 120,
+    height: 12,
+    backgroundColor: '#EEE',
+    borderRadius: 4,
+    marginBottom: 4,
   },
-  inputBox: {
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 8,
-    paddingVertical: 12,
+  skelLineLong: {
+    width: 180,
+    height: 12,
+    backgroundColor: '#EEE',
+    borderRadius: 4,
+    marginBottom: 4,
+  },
+  skelLineTiny: {
+    width: 60,
+    height: 12,
+    backgroundColor: '#EEE',
+    borderRadius: 4,
+  },
+  skelDot: { width: 12, height: 12, borderRadius: 6, backgroundColor: '#EEE' },
+
+  notFoundTitle: { fontSize: 18, fontWeight: '600', color: '#888' },
+  notFoundSub: { color: '#AAA' },
+
+  avatar: { width: 48, height: 48, borderRadius: 24, marginRight: 12 },
+  groupName: { fontSize: 18, fontWeight: '600', color: '#1A1A1A' },
+  groupDesc: { color: '#555' },
+  groupTasks: { color: '#555' },
+
+  loadingContainer: { alignItems: 'center', marginTop: 40 },
+  loadingText: { marginTop: 12, color: '#666' },
+
+  emptyContainer: {
+    alignItems: 'center',
+    marginTop: 40,
     paddingHorizontal: 16,
-    justifyContent: "center",
   },
-  inputText: {
+  emptyImage: { width: 120, height: 120, opacity: 0.5, marginBottom: 16 },
+  emptyTitle: {
     fontSize: 16,
-    color: "#333",
+    fontWeight: '500',
+    color: '#555',
+    marginBottom: 8,
   },
-});
+  emptySub: { fontSize: 14, color: '#888', textAlign: 'center' },
+
+  addButton: {
+    backgroundColor: '#D6E4FF',
+    borderRadius: 24,
+    paddingVertical: 12,
+    alignItems: 'center',
+    marginTop: 24,
+  },
+  addButtonText: { color: '#0061FF', fontSize: 16, fontWeight: '600' },
+
+  modalOverlay: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+  },
+
+  // Ensure the ScrollView grows and centers content
+  modalScrollContainer: {
+    flexGrow: 1,
+    justifyContent: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 32,
+  },
+
+  modalCard: {
+    backgroundColor: '#fff',
+    borderRadius: 20,
+    padding: 20,
+    width: '100%',
+    maxWidth: 400,
+  },
+
+  modalClose: { position: 'absolute', top: 25, right: 15, zIndex: 1 },
+  modalTitle: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#191D31',
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  modalImageWrap: { alignItems: 'center', marginBottom: 20 },
+  modalImage: { width: 250, height: 180, borderRadius: 12 },
+  fieldWrap: {
+    backgroundColor: '#0061FF1A',
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    marginBottom: 12,
+  },
+  fieldInput: { fontSize: 16, color: '#191D31' },
+  modalSubmit: {
+    backgroundColor: '#D6E4FF',
+    borderRadius: 24,
+    paddingVertical: 12,
+    alignItems: 'center',
+  },
+  modalSubmitText: { color: '#0061FF', fontSize: 16, fontWeight: '700' },
+})

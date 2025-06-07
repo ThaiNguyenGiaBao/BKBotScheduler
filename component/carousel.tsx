@@ -6,8 +6,8 @@ const { width } = Dimensions.get('window')
 
 const carouselItems = [
   'Manage your time with BKBotScheduler!',
-  'Event planning is easy and fast',
-  'Automate effective deadline management',
+  'Event planning is easy and fast.',
+  'Automate effective deadline management.',
   'Explore BKBotScheduler with AI',
 ]
 
@@ -67,7 +67,7 @@ const styles = StyleSheet.create({
   },
   slideText: {
     color: 'white',
-    fontSize: 32,
+    fontSize: 24,
     fontWeight: 'bold',
     textAlign: 'center',
   },

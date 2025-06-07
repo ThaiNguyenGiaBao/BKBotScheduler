@@ -1,249 +1,433 @@
-import React, { useState, useEffect } from "react";
+// File: app/group/members/[groupId].tsx
+
+import React, { useState, useEffect } from 'react'
 import {
   View,
   Text,
+  SafeAreaView,
   TouchableOpacity,
+  TouchableWithoutFeedback,
   Image,
-  StyleSheet,
+  ScrollView,
   Modal,
   TextInput,
   KeyboardAvoidingView,
   Platform,
-} from "react-native";
-import Icon from "react-native-vector-icons/MaterialIcons"; // For trash and other icons
-import { SafeAreaView, ScrollView } from "react-native";
-import TopBar from "@/component/topBar"; // Assuming you have a TopBar component
-import { useRouter } from "expo-router";
-import images from "@/constants/images";
-import MemberItem from "@/component/memberItem";
-import { useLocalSearchParams } from "expo-router";
-import api from "@/api"; // Assuming you have an API module for fetching data
+  StyleSheet,
+  ActivityIndicator,
+} from 'react-native'
+import { useLocalSearchParams, useRouter } from 'expo-router'
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons'
+import TopBar from '@/component/topBar'
+import images from '@/constants/images'
+import api from '@/api'
+import MemberItem from '@/component/memberItem'
 
 interface Member {
-  id: string;
-  email: string;
-  name: string;
+  id: string
+  email: string
+  name: string
 }
 
-const GroupSettings = ({}) => {
-  const [group, setGroup] = useState({
-    id: "1",
-    name: "CNPM",
-    numMember: 3,
-    description: "Group for CNPM course discussions",
-  });
-  const { groupId } = useLocalSearchParams<{ groupId: string }>();
-  const tasksRemaining = 2;
-  const [memberList, setMemberList] = useState<Member[]>([
-    {
-      id: "1",
-      email: "tuan.nguyen123@hcmu.edu.vn",
-      name: "Tuan Nguyen",
-    },
-    {
-      id: "2",
-      email: "hongphucle@gmail.com",
-      name: "Hong Phuc Le",
-    },
-  ]);
-  const router = useRouter();
-  const handleRemoveMember = (memberId: string) => {};
+interface Group {
+  id: string
+  name: string
+  description: string
+}
 
-  const [err, setErr] = useState("");
+export default function GroupMembers() {
+  const { groupId } = useLocalSearchParams<{ groupId: string }>()
+  const router = useRouter()
 
+  const [isLoading, setIsLoading] = useState(true)
+  const [isLoadingGroup, setIsLoadingGroup] = useState(true)
+  const [members, setMembers] = useState<Member[]>([])
+  const [group, setGroup] = useState<Group | null>(null)
+  const [modalVisible, setModalVisible] = useState(false)
+  const [newMemberEmail, setNewMemberEmail] = useState('')
+  const [err, setErr] = useState('')
+  const [isPosting, setIsPosting] = useState(false)
+
+  // Fetch group info
+  useEffect(() => {
+    if (!groupId) return
+    const fetchGroup = async () => {
+      setIsLoadingGroup(true)
+      try {
+        const res = await api.get(`/groups/${groupId}`)
+        setGroup(res.data)
+      } catch (error) {
+        console.error('Failed to fetch group:', error)
+        setGroup(null)
+      } finally {
+        setIsLoadingGroup(false)
+      }
+    }
+    fetchGroup()
+  }, [groupId])
+
+  // Fetch members
+  useEffect(() => {
+    if (!groupId) return
+    const fetchMembers = async () => {
+      setIsLoading(true)
+      try {
+        const res = await api.get(`/groups/${groupId}/members`)
+        setMembers(res.data.users || [])
+      } catch (error) {
+        console.error('Failed to fetch members:', error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    fetchMembers()
+  }, [groupId])
+
+  // Add member
   const handleAddMember = async () => {
     if (!newMemberEmail.trim()) {
-      setErr("Please enter a valid email address.");
-      return;
+      setErr('Please enter a valid email address.')
+      return
     }
+    if (isPosting) return
 
-    //navigation.navigate("AddMember"); // Navigate to add member screen
+    setIsPosting(true)
+    setErr('')
     try {
-      console.log("groupId:", groupId);
-      const response = await api.post("/groups/" + groupId + "/members", {
+      const res = await api.post(`/groups/${groupId}/members`, {
         email: newMemberEmail,
-      });
-      console.log("Member added successfully:", response.data);
-
-      setModalVisible(false); // Close the modal after adding
-      console.log("Added new member:", newMemberEmail);
-
-      setMemberList((prevMembers) => [
-        ...prevMembers,
-        {
-          id: Math.random().toString(),
-          name: response.data.name || "New Member", // Use response data if available
-          email: response.data.email || newMemberEmail, // Use response data if available
-          isOwner: false, // Default to non-owner
-        },
-      ]);
+      })
+      setMembers((prev) => [...prev, res.data])
+      setNewMemberEmail('')
+      setModalVisible(false)
     } catch (error: any) {
-      console.log("Failed to add member:", error);
-      setErr(error.response.data.message || "Failed to add member");
+      console.error('Add member failed:', error)
+      setErr(error.response?.data?.message || 'Failed to add member')
+    } finally {
+      setIsPosting(false)
+    }
+  }
 
-      // Optionally, you can show an alert or toast message here
+  // Remove member by email
+  const handleRemoveMember = async (email: string) => {
+    try {
+      await api.delete(
+        `/groups/${groupId}/members/${encodeURIComponent(email)}`
+      )
+      setMembers((prev) => prev.filter((m) => m.email !== email))
+    } catch (error) {
+      console.error('Remove member failed:', error)
+    }
+  }
+
+  const renderGroupHeader = () => {
+    if (isLoadingGroup) {
+      return (
+        <View style={styles.groupHeaderContainer}>
+          <View style={styles.skelAvatar} />
+          <View style={styles.groupInfoContainer}>
+            <View style={styles.skelLineShort} />
+            <View style={styles.skelLineTiny} />
+          </View>
+        </View>
+      )
     }
 
-    setNewMemberEmail(""); // Clear the input field
-  };
+    if (!group) {
+      return (
+        <View style={styles.groupHeaderContainer}>
+          <Image source={images.onboarding1} style={styles.avatar} />
+          <View style={styles.groupInfoContainer}>
+            <Text style={styles.notFoundTitle}>Group not found</Text>
+            <Text style={styles.notFoundSub}>Unable to load group info</Text>
+          </View>
+        </View>
+      )
+    }
 
-  const [modalVisible, setModalVisible] = useState(false);
-  const [newMemberEmail, setNewMemberEmail] = useState("");
-
-  useEffect(() => {
-    const fetchGroups = async () => {
-      try {
-        const response = await api.get("/groups/" + groupId); // Adjust endpoint as needed
-        setGroup(response.data || []);
-        console.log("Fetched group:", response.data);
-        setMemberList(response.data.users || []);
-      } catch (error) {
-        console.log("Failed to fetch group:", error);
-      }
-    };
-
-    fetchGroups();
-  }, []);
+    return (
+      <View style={styles.groupHeaderContainer}>
+        <Image source={images.onboarding1} style={styles.avatar} />
+        <View style={styles.groupInfoContainer}>
+          <Text style={styles.groupName}>{group.name}</Text>
+          <Text style={styles.tasksRemaining}>
+            {members.length} member{members.length !== 1 ? 's' : ''}
+          </Text>
+        </View>
+      </View>
+    )
+  }
 
   return (
-    <SafeAreaView className="flex-1 bg-white p-5">
-       <TopBar
-          title="Group Details"
-          
-        />
-      <ScrollView
-        className="p-3"
-        showsVerticalScrollIndicator={false}
-        showsHorizontalScrollIndicator={false}
-      >
-        {/* ─────────────────────────── Header ─────────────────────────── */}
-       
-        <View style={styles.container}>
-          <View className="flex-col items-center justify-center mb-6">
-            <Image
-              source={images.onboarding1} // Replace with actual avatar URL
-              style={styles.avatar}
-            />
-            <View className="flex-col items-center">
-              <Text className="text-2xl font-rubik">{group.name}</Text>
-              <Text style={styles.tasksRemaining}>
-                {memberList.length} members
-              </Text>
-              
-            </View>
-          </View>
+    <SafeAreaView style={styles.safeArea}>
+      <TopBar title="Group Members" />
+      <ScrollView contentContainerStyle={{ padding: 16 }}>
+        {renderGroupHeader()}
 
-          {/* Members Section */}
-          <View className="mb-6 font-rubik-semibold text-lg">
-            <Text style={styles.sectionTitle}>Members</Text>
-            {memberList.map((member) => (
-              <MemberItem key={member.id} member={member} />
-            ))}
-          </View>
+        <Text style={styles.membersTitle}>Members</Text>
 
-          {/* Add Member Button */}
-          <TouchableOpacity
-            style={styles.addButton}
-            onPress={() => setModalVisible(true)}
-          >
-            <Text style={styles.addButtonText}>Add new member</Text>
-            <Icon name="person-add" size={20} color="#007AFF" />
-          </TouchableOpacity>
-        </View>
+        {isLoading ? (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color="#3B82F6" />
+            <Text style={styles.loadingText}>Loading members...</Text>
+          </View>
+        ) : (
+          <>
+            {members.length === 0 ? (
+              <View style={styles.emptyContainer}>
+                <Image source={images.onboarding2} style={styles.emptyImage} />
+                <Text style={styles.emptyTitle}>No members yet</Text>
+                <Text style={styles.emptySub}>
+                  Invite members to collaborate in this group
+                </Text>
+              </View>
+            ) : (
+              members.map((member) => (
+                <MemberItem
+                  key={member.id}
+                  member={member}
+                  onRemove={() => handleRemoveMember(member.email)}
+                />
+              ))
+            )}
+
+            <TouchableOpacity
+              style={styles.addButton}
+              onPress={() => setModalVisible(true)}
+            >
+              <Text style={styles.addButtonText}>Add new member</Text>
+              <Ionicons name="person-add" size={20} color="#0061FF" />
+            </TouchableOpacity>
+          </>
+        )}
       </ScrollView>
 
-      <Modal
-        transparent
-        visible={modalVisible}
-        onRequestClose={() => {
-          setModalVisible(false);
-        }}
-      >
-        <KeyboardAvoidingView
-          behavior={Platform.OS === "ios" ? "padding" : "height"}
-          className="flex-1 justify-center items-center bg-black/30"
-        >
-          <View className="bg-white w-11/12 mx-2 rounded-2xl p-5">
-            <View className="flex-row mb-4">
-              <Text className="text-center text-2xl font-rubik-bold flex-1">
-                Add New Member
-              </Text>
-              <TouchableOpacity onPress={() => setModalVisible(false)}>
-                <Text className="text-xl font-bold text-red-600">&times;</Text>
-              </TouchableOpacity>
-            </View>
+      {/* Add Member Modal */}
+      <Modal transparent visible={modalVisible} animationType="slide">
+        <TouchableWithoutFeedback onPress={() => setModalVisible(false)}>
+          <View style={styles.modalOverlay}>
+            <TouchableWithoutFeedback>
+              <KeyboardAvoidingView
+                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+                style={{ flex: 1 }}
+              >
+                <ScrollView
+                  contentContainerStyle={styles.modalScroll}
+                  keyboardShouldPersistTaps="handled"
+                  showsVerticalScrollIndicator={false}
+                >
+                  <View style={styles.modalCard}>
+                    <Text style={styles.modalTitle}>Add New Member</Text>
+                    <TouchableOpacity
+                      style={styles.modalClose}
+                      onPress={() => {
+                        setModalVisible(false)
+                        setErr('')
+                        setNewMemberEmail('')
+                      }}
+                    >
+                      <MaterialCommunityIcons
+                        name="close-circle-outline"
+                        size={28}
+                        color="#666876"
+                      />
+                    </TouchableOpacity>
 
-            {/* Title */}
+                    {/* Placeholder illustration */}
+                    <View style={styles.modalImageWrap}>
+                      <Image
+                        source={images.onboarding2}
+                        style={styles.modalImage}
+                        resizeMode="contain"
+                      />
+                    </View>
 
-            {/* Placeholder image (replace with your own or let user upload) */}
-            <View className="items-center mb-4">
-              <Image
-                resizeMode="contain"
-                source={images.onboarding2 /* your illustration asset */}
-                style={{ width: 300, height: 250 }}
-              />
-            </View>
+                    <TextInput
+                      placeholder="New Member Email"
+                      keyboardType="email-address"
+                      autoCapitalize="none"
+                      value={newMemberEmail}
+                      onChangeText={(text) => {
+                        setNewMemberEmail(text)
+                        setErr('') // Clear error when user types
+                      }}
+                      style={[styles.input, err && styles.inputError]}
+                    />
+                    {err ? <Text style={styles.errorText}>{err}</Text> : null}
 
-            {/* Input: Group Name */}
-            <TextInput
-              placeholder="New Member Email"
-              keyboardType="email-address"
-              autoCapitalize="none"
-              value={newMemberEmail}
-              onChangeText={(value: any) => setNewMemberEmail(value)}
-              className="border border-gray-300 rounded-lg px-3 py-2 mb-3"
-            />
-            <Text className="text-red-500 mb-2">{err}</Text>
-
-            {/* Save Button */}
-            <TouchableOpacity
-              className="bg-blue-500 rounded-full py-3 items-center"
-              onPress={handleAddMember}
-            >
-              <Text className="text-white font-rubik-medium text-base">
-                Save
-              </Text>
-            </TouchableOpacity>
+                    <TouchableOpacity
+                      onPress={handleAddMember}
+                      style={[
+                        styles.modalSubmit,
+                        isPosting && { opacity: 0.5 },
+                      ]}
+                      disabled={isPosting}
+                    >
+                      {isPosting ? (
+                        <ActivityIndicator size="small" color="#0061FF" />
+                      ) : (
+                        <Text style={styles.modalSubmitText}>Save</Text>
+                      )}
+                    </TouchableOpacity>
+                  </View>
+                </ScrollView>
+              </KeyboardAvoidingView>
+            </TouchableWithoutFeedback>
           </View>
-        </KeyboardAvoidingView>
+        </TouchableWithoutFeedback>
       </Modal>
     </SafeAreaView>
-  );
-};
+  )
+}
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 16 },
-  header: { flexDirection: "row", alignItems: "center", marginBottom: 16 },
-  title: { fontSize: 20, fontWeight: "bold", flex: 1, textAlign: "center" },
-  groupInfo: { flexDirection: "row", alignItems: "center", marginBottom: 24 },
-  avatar: { width: 200, height: 200, borderRadius: 100, marginRight: 16 },
-  tasksRemaining: { fontSize: 14, color: "#666" },
-  changeLink: { fontSize: 14, color: "#007AFF", marginTop: 4 },
-  membersSection: { marginBottom: 24 },
-  sectionTitle: { fontSize: 16, fontWeight: "bold", marginBottom: 12 },
-  memberRow: { flexDirection: "row", alignItems: "center", marginBottom: 12 },
-  memberAvatar: { width: 40, height: 40, borderRadius: 20, marginRight: 12 },
-  memberInfo: { flex: 1 },
-  memberName: { fontSize: 14 },
-  ownerText: { fontSize: 12, color: "#666" },
-  addButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#E6F0FA",
-    padding: 12,
-    borderRadius: 20,
-    marginBottom: 24,
-  },
-  addButtonText: { fontSize: 16, color: "#007AFF", marginRight: 8 },
-  bottomNav: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    paddingVertical: 8,
-    borderTopWidth: 1,
-    borderTopColor: "#DDD",
-  },
-  navText: { fontSize: 12, textAlign: "center" },
-});
+  safeArea: { flex: 1, backgroundColor: '#fff' },
 
-export default GroupSettings;
+  // Group Header Styles
+  groupHeaderContainer: {
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 24,
+    paddingVertical: 16,
+  },
+  avatar: {
+    width: 200,
+    height: 200,
+    borderRadius: 40,
+    marginBottom: 12,
+  },
+  groupInfoContainer: {
+    alignItems: 'center',
+  },
+  groupName: {
+    fontSize: 24,
+    fontWeight: '600',
+    color: '#1A1A1A',
+    textAlign: 'center',
+    marginBottom: 4,
+  },
+  tasksRemaining: {
+    fontSize: 16,
+    color: '#666',
+    textAlign: 'center',
+  },
+
+  // Skeleton Loading Styles
+  skelAvatar: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: '#EEE',
+    marginBottom: 12,
+  },
+  skelLineShort: {
+    width: 120,
+    height: 20,
+    backgroundColor: '#EEE',
+    borderRadius: 4,
+    marginBottom: 8,
+  },
+  skelLineTiny: {
+    width: 80,
+    height: 16,
+    backgroundColor: '#EEE',
+    borderRadius: 4,
+  },
+
+  // Error States
+  notFoundTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#888',
+    textAlign: 'center',
+  },
+  notFoundSub: {
+    color: '#AAA',
+    textAlign: 'center',
+    marginTop: 4,
+  },
+
+  // Members Section
+  membersTitle: {
+    fontSize: 20,
+    fontWeight: '600',
+    color: '#1A1A1A',
+    marginBottom: 16,
+  },
+
+  loadingContainer: { alignItems: 'center', marginTop: 40 },
+  loadingText: { marginTop: 12, color: '#666' },
+  emptyContainer: { alignItems: 'center', marginTop: 40 },
+  emptyImage: { width: 120, height: 120, opacity: 0.5, marginBottom: 16 },
+  emptyTitle: { fontSize: 16, fontWeight: '500', color: '#555' },
+  emptySub: { fontSize: 14, color: '#888', textAlign: 'center' },
+  addButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#D6E4FF',
+    padding: 12,
+    borderRadius: 24,
+    marginTop: 24,
+  },
+  addButtonText: {
+    color: '#0061FF',
+    fontSize: 16,
+    fontWeight: '600',
+    marginRight: 8,
+  },
+
+  modalOverlay: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+  },
+  modalScroll: { flexGrow: 1, justifyContent: 'center', padding: 16 },
+  modalCard: {
+    backgroundColor: '#fff',
+    borderRadius: 20,
+    padding: 20,
+    width: '100%',
+    maxWidth: 400,
+    maxHeight: '90%',
+  },
+
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: '600',
+    color: '#191D31',
+    textAlign: 'center',
+  },
+  modalClose: { position: 'absolute', top: 25, right: 15, zIndex: 1 },
+  modalImageWrap: { alignItems: 'center', marginBottom: 20 },
+  modalImage: { width: 250, height: 180, borderRadius: 12 },
+  input: {
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    marginBottom: 8,
+    fontSize: 16,
+    backgroundColor: '#F9F9F9',
+  },
+  inputError: {
+    borderColor: '#D9534F',
+    backgroundColor: '#FFF5F5',
+  },
+  errorText: {
+    color: '#D9534F',
+    marginBottom: 8,
+    fontSize: 14,
+  },
+  modalSubmit: {
+    backgroundColor: '#0061FF1A',
+    borderRadius: 12,
+    paddingVertical: 12,
+    alignItems: 'center',
+    marginTop: 8,
+  },
+  modalSubmitText: { color: '#0061FF', fontSize: 16, fontWeight: '600' },
+})
