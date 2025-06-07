@@ -25,7 +25,6 @@ import {
   sendMessageToChatbot,
 } from '@/api/chatbot/chatbot'
 import icon from '@/assets/images/icon.png'
-import * as Clipboard from 'expo-clipboard'
 
 interface Message {
   id: string
@@ -334,15 +333,11 @@ const ChatScreen = () => {
   const renderMessage = ({ item }: { item: Message }) => {
     const isUser = item.sender === 'user'
     const isSelected = selectedMessageId === item.id
-    const handleCopy = () => {
-      Clipboard.setStringAsync(item.text)
-    }
 
     return (
       <View style={{ marginVertical: 6 }}>
         <TouchableOpacity
           onPress={() => handleMessagePress(item.id)}
-          onLongPress={handleCopy}
           activeOpacity={0.7}
           style={{
             flexDirection: isUser ? 'row-reverse' : 'row',
